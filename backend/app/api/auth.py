@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.core.security import hash_password, verify_password, create_access_token, create_refresh_token
 from app.models.user import User
-from app.schemas.user import UserCreate, UserResponse
+from app.schemas.user import UserCreate, UserResponse, UserLogin
 from app.core.dependencies import get_current_user
 from app.core.initial_data import assign_default_categories_to_user
 
@@ -26,7 +26,7 @@ def register(data: UserCreate, db: Session = Depends(get_db)):
 
 
 @router.post("/login")
-def login(data: UserCreate, db: Session = Depends(get_db)):
+def login(data: UserLogin, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == data.email).first()
     if not user or not verify_password(data.password, user.hashed_password):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
