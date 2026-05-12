@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from datetime import datetime
-
+from enum import Enum
 
 class DocumentResponse(BaseModel):
     id: int
@@ -23,3 +23,13 @@ class DocumentUpdate(BaseModel):
     note: str | None = None
     folder_id: int | None = None
     category_id: int | None = None
+
+
+class SortField(str, Enum):
+    created_at = "created_at"
+    title = "title"
+    file_size = "file_size"
+
+class SortOrder(str, Enum):
+    asc = "asc"
+    desc = "desc"
