@@ -35,3 +35,4 @@ class Document(Base):
     owner: Mapped["User"] = relationship("User", back_populates="documents")
     folder: Mapped["Folder | None"] = relationship("Folder", back_populates="documents")
     category: Mapped["Category | None"] = relationship("Category", back_populates="documents")
+    share_links: Mapped[list["ShareLink"]] = relationship("ShareLink", back_populates="document", cascade="all, delete-orphan")
