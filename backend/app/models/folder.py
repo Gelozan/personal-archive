@@ -15,8 +15,8 @@ class Folder(Base):
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     owner_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     parent_id: Mapped[int | None] = mapped_column(ForeignKey("folders.id", ondelete="CASCADE"), nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
-    updated_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), onupdate=func.now())
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     owner: Mapped["User"] = relationship("User", back_populates="folders")
     parent: Mapped["Folder | None"] = relationship("Folder", remote_side="Folder.id", back_populates="children")

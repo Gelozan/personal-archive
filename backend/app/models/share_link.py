@@ -15,7 +15,7 @@ class ShareLink(Base):
     document_id: Mapped[int] = mapped_column(ForeignKey("documents.id", ondelete="CASCADE"), nullable=False)
     token: Mapped[str] = mapped_column(String(64), nullable=False, unique=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
-    expires_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+    expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     document: Mapped["Document"] = relationship("Document", back_populates="share_links")
