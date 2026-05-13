@@ -8,6 +8,8 @@ def create_audit_log(
     action: str,
     user_id: int | None = None,
     document_id: int | None = None,
+    folder_id: int | None = None,
+    category_id: int | None = None,
     request: Request | None = None,
 ) -> None:
     ip = None
@@ -19,6 +21,8 @@ def create_audit_log(
         user_id=user_id,
         action=action,
         document_id=document_id,
+        folder_id=folder_id,
+        category_id=category_id,
         ip_address=ip,
     )
     db.add(log)
