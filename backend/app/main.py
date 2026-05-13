@@ -14,6 +14,8 @@ from app.api.search import router as search_router
 from app.api.share import router as share_router
 from app.api.users import router as users_router
 
+from prometheus_fastapi_instrumentator import Instrumentator
+
 app = FastAPI(title=settings.app_name, debug=settings.debug)
 
 app.add_middleware(
@@ -23,6 +25,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+Instrumentator().instrument(app).expose(app)
 
 app.include_router(auth_router, prefix="/api/v1")
 app.include_router(folders_router, prefix="/api/v1")
