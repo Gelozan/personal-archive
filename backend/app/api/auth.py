@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 import secrets
 from datetime import datetime, timedelta, timezone
@@ -11,12 +11,14 @@ from app.core.dependencies import get_current_user
 from app.core.initial_data import assign_default_categories_to_user
 from app.models.password_reset import PasswordResetToken
 from app.core.email import send_password_reset_email
+from app.core.audit import create_audit_log
+from app.core.actions import ACTION_REGISTER, ACTION_LOGIN, ACTION_FORGOT_PASSWORD, ACTION_RESET_PASSWORD
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
-def register(data: UserCreate, db: Session = Depends(get_db)):
+def register(data: UserCreate, request: Request, db: Session = Depends(get_db)):
     existing = db.query(User).filter(User.email == data.email).first()
     if existing:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already registered")
@@ -25,16 +27,18 @@ def register(data: UserCreate, db: Session = Depends(get_db)):
     db.add(user)
     db.commit()
     db.refresh(user)
+    create_audit_log(db, action=ACTION_REGISTER, user_id=user.id, request=request)
     assign_default_categories_to_user(db, user)
     return user
 
 
 @router.post("/login")
-def login(data: UserLogin, db: Session = Depends(get_db)):
+def login(data: UserLogin, request: Request, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == data.email).first()
     if not user or not verify_password(data.password, user.hashed_password):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
 
+    create_audit_log(db, action=ACTION_LOGIN, user_id=user.id, request=request)
     return {
         "access_token": create_access_token({"sub": user.id}),
         "refresh_token": create_refresh_token({"sub": user.id}),
@@ -48,7 +52,7 @@ def me(current_user: User = Depends(get_current_user)):
 
 
 @router.post("/forgot-password", status_code=status.HTTP_204_NO_CONTENT)
-def forgot_password(data: ForgotPasswordRequest, db: Session = Depends(get_db)):
+def forgot_password(data: ForgotPasswordRequest, request: Request, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == data.email).first()
 
     if not user:
@@ -68,12 +72,12 @@ def forgot_password(data: ForgotPasswordRequest, db: Session = Depends(get_db)):
     )
     db.add(reset_token)
     db.commit()
-
+    create_audit_log(db, action=ACTION_FORGOT_PASSWORD, user_id=user.id, request=request)
     send_password_reset_email(to_email=user.email, token=token)
 
 
 @router.post("/reset-password", status_code=status.HTTP_204_NO_CONTENT)
-def reset_password(data: ResetPasswordRequest, db: Session = Depends(get_db)):
+def reset_password(data: ResetPasswordRequest, request: Request, db: Session = Depends(get_db)):
     reset_token = db.query(PasswordResetToken).filter(
         PasswordResetToken.token == data.token,
         PasswordResetToken.used == False,
@@ -96,3 +100,4 @@ def reset_password(data: ResetPasswordRequest, db: Session = Depends(get_db)):
 
     reset_token.used = True
     db.commit()
+    create_audit_log(db, action=ACTION_RESET_PASSWORD, user_id=user.id, request=request)

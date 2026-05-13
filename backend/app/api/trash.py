@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
@@ -7,6 +7,8 @@ from app.core.storage import delete_file
 from app.models.user import User
 from app.models.document import Document
 from app.schemas.document import DocumentResponse
+from app.core.audit import create_audit_log
+from app.core.actions import ACTION_RESTORE, ACTION_DELETE_PERMANENT
 
 router = APIRouter(prefix="/trash", tags=["trash"])
 
@@ -36,6 +38,7 @@ def get_trash(
 @router.post("/{document_id}/restore", response_model=DocumentResponse)
 def restore_document(
     document_id: int,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -44,16 +47,20 @@ def restore_document(
     doc.deleted_at = None
     db.commit()
     db.refresh(doc)
+    create_audit_log(db, action=ACTION_RESTORE, user_id=current_user.id, document_id=doc.id, request=request)
     return doc
 
 
 @router.delete("/{document_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_permanently(
     document_id: int,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
     doc = get_trashed_or_404(document_id, current_user.id, db)
     delete_file(doc.storage_key)
+    create_audit_log(db, action=ACTION_DELETE_PERMANENT, user_id=current_user.id, document_id=doc.id, request=request)
     db.delete(doc)
     db.commit()
+    

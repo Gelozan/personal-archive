@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
@@ -6,6 +6,8 @@ from app.core.dependencies import get_current_user
 from app.models.user import User
 from app.models.folder import Folder
 from app.schemas.folder import FolderCreate, FolderUpdate, FolderResponse, FolderTree
+from app.core.audit import create_audit_log
+from app.core.actions import ACTION_CREATE_FOLDER, ACTION_UPDATE_FOLDER, ACTION_DELETE_FOLDER
 
 router = APIRouter(prefix="/folders", tags=["folders"])
 
@@ -42,6 +44,7 @@ def get_folders(
 @router.post("/", response_model=FolderResponse, status_code=status.HTTP_201_CREATED)
 def create_folder(
     data: FolderCreate,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -52,6 +55,7 @@ def create_folder(
     db.add(folder)
     db.commit()
     db.refresh(folder)
+    create_audit_log(db, action=ACTION_CREATE_FOLDER, folder_id=folder.id, user_id=current_user.id, request=request)
     return folder
 
 
@@ -59,6 +63,7 @@ def create_folder(
 def update_folder(
     folder_id: int,
     data: FolderUpdate,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -76,15 +81,18 @@ def update_folder(
 
     db.commit()
     db.refresh(folder)
+    create_audit_log(db, action=ACTION_UPDATE_FOLDER, folder_id=folder.id, user_id=current_user.id, request=request)
     return folder
 
 
 @router.delete("/{folder_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_folder(
     folder_id: int,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
     folder = get_folder_or_404(folder_id, current_user.id, db)
+    create_audit_log(db, action=ACTION_DELETE_FOLDER, folder_id=folder.id, user_id=current_user.id, request=request)
     db.delete(folder)
     db.commit()

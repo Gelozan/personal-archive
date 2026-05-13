@@ -1,7 +1,7 @@
 import secrets
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
@@ -11,6 +11,8 @@ from app.models.user import User
 from app.models.document import Document
 from app.models.share_link import ShareLink
 from app.schemas.share_link import ShareLinkCreate, ShareLinkResponse, ShareLinkPublicResponse
+from app.core.audit import create_audit_log
+from app.core.actions import ACTION_CREATE_SHARE_LINK, ACTION_REVOKE_SHARE_LINK, ACTION_ACCESS_SHARED_DOCUMENT
 
 router = APIRouter(tags=["share"])
 
@@ -19,6 +21,7 @@ router = APIRouter(tags=["share"])
 def create_share_link(
     document_id: int,
     data: ShareLinkCreate,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -44,12 +47,14 @@ def create_share_link(
     db.add(link)
     db.commit()
     db.refresh(link)
+    create_audit_log(db, action=ACTION_CREATE_SHARE_LINK, user_id=current_user.id, document_id=document_id, request=request)
     return link
 
 
 @router.delete("/documents/{document_id}/share", status_code=status.HTTP_204_NO_CONTENT)
 def revoke_share_link(
     document_id: int,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -66,11 +71,13 @@ def revoke_share_link(
     ).first()
     db.delete(link)
     db.commit()
+    create_audit_log(db, action=ACTION_REVOKE_SHARE_LINK, user_id=current_user.id, document_id=document_id, request=request)
 
 
 @router.get("/share/{token}", response_model=ShareLinkPublicResponse)
 def access_shared_document(
     token: str,
+    request: Request,
     db: Session = Depends(get_db),
 ):
     link = db.query(ShareLink).filter(
@@ -89,6 +96,8 @@ def access_shared_document(
     doc = link.document
     if doc.is_deleted:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Document not found")
+
+    create_audit_log(db, action=ACTION_ACCESS_SHARED_DOCUMENT, document_id=link.document_id, request=request)
 
     return ShareLinkPublicResponse(
         title=doc.title,
