@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
@@ -6,6 +6,8 @@ from app.core.dependencies import get_current_user
 from app.models.user import User
 from app.models.category import Category, UserCategory
 from app.schemas.category import CategoryCreate, CategoryResponse
+from app.core.audit import create_audit_log
+from app.core.actions import ACTION_CREATE_CATEGORY, ACTION_DELETE_CATEGORY, ACTION_HIDE_CATEGORY
 
 router = APIRouter(prefix="/categories", tags=["categories"])
 
@@ -30,6 +32,7 @@ def get_categories(
 @router.post("/", response_model=CategoryResponse, status_code=status.HTTP_201_CREATED)
 def create_category(
     data: CategoryCreate,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -37,12 +40,14 @@ def create_category(
     db.add(category)
     db.commit()
     db.refresh(category)
+    create_audit_log(db, action=ACTION_CREATE_CATEGORY, category_id=category.id, user_id=current_user.id, request=request)
     return category
 
 
 @router.delete("/system/{category_id}", status_code=status.HTTP_204_NO_CONTENT)
 def hide_system_category(
     category_id: int,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -54,11 +59,12 @@ def hide_system_category(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Category not found")
     db.delete(uc)
     db.commit()
-
+    create_audit_log(db, action=ACTION_HIDE_CATEGORY, category_id=category_id, user_id=current_user.id, request=request)
 
 @router.delete("/{category_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_custom_category(
     category_id: int,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -68,5 +74,6 @@ def delete_custom_category(
     ).first()
     if not category:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Category not found")
+    create_audit_log(db, action=ACTION_DELETE_CATEGORY, category_id=category.id, user_id=current_user.id, request=request)
     db.delete(category)
     db.commit()

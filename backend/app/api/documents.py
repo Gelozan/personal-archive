@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, status
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, status, Request
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
@@ -12,6 +12,8 @@ from app.core.config import settings
 from app.models.user import User
 from app.models.document import Document
 from app.schemas.document import DocumentResponse, DocumentUpdate
+from app.core.audit import create_audit_log
+from app.core.actions import ACTION_UPLOAD, ACTION_UPDATE_METADATA, ACTION_MOVE_TO_TRASH, ACTION_RESTORE, ACTION_DELETE_PERMANENT, ACTION_DOWNLOAD
 
 router = APIRouter(prefix="/documents", tags=["documents"])
 
@@ -31,6 +33,7 @@ def get_document_or_404(document_id: int, owner_id: int, db: Session) -> Documen
 
 @router.post("/", response_model=DocumentResponse, status_code=status.HTTP_201_CREATED)
 async def upload_document(
+    request: Request,
     file: UploadFile = File(...),
     title: str = Form(...),
     note: str | None = Form(None),
@@ -64,6 +67,7 @@ async def upload_document(
     db.add(doc)
     db.commit()
     db.refresh(doc)
+    create_audit_log(db, action=ACTION_UPLOAD, user_id=current_user.id, document_id=doc.id, request=request)
     return doc
 
 
@@ -96,11 +100,13 @@ def get_document(
 @router.get("/{document_id}/download")
 def download_document(
     document_id: int,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
     doc = get_document_or_404(document_id, current_user.id, db)
     url = get_presigned_url(doc.storage_key)
+    create_audit_log(db, action=ACTION_DOWNLOAD, user_id=current_user.id, document_id=doc.id, request=request)
     return {"url": url}
 
 
@@ -108,6 +114,7 @@ def download_document(
 def update_document(
     document_id: int,
     data: DocumentUpdate,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -119,12 +126,14 @@ def update_document(
 
     db.commit()
     db.refresh(doc)
+    create_audit_log(db, action=ACTION_UPDATE_METADATA, user_id=current_user.id, document_id=doc.id, request=request)
     return doc
 
 
 @router.delete("/{document_id}", status_code=status.HTTP_204_NO_CONTENT)
 def move_to_trash(
     document_id: int,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -132,3 +141,4 @@ def move_to_trash(
     doc.is_deleted = True
     doc.deleted_at = datetime.now(timezone.utc)
     db.commit()
+    create_audit_log(db, action=ACTION_MOVE_TO_TRASH, user_id=current_user.id, document_id=doc.id, request=request)
