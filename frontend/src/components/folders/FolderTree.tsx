@@ -33,11 +33,12 @@ export default function FolderTree() {
 
   return (
     <div className="px-2 space-y-0.5">
+      {/* Корневая папка — всегда первая */}
       <FolderItem
         label="Все документы"
         depth={0}
         isActive={activeFolderId === null}
-        onClick={() => setActiveFolder(null)}
+        onClick={() => setActiveFolder(null, "Все документы")}
         isRoot
       />
 
@@ -47,12 +48,13 @@ export default function FolderTree() {
           folder={folder}
           depth={0}
           activeFolderId={activeFolderId}
-          onSelect={setActiveFolder}
+          onSelect={(id, name) => setActiveFolder(id, name)}
         />
       ))}
 
+      {/* Кнопка создания папки */}
       <button
-        onClick={() => {}}
+        onClick={() => {/* откроем модалку позже */}}
         className="w-full flex items-center gap-2 px-2 py-1.5 mt-2 rounded-lg
           text-xs text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all"
       >
@@ -65,14 +67,16 @@ export default function FolderTree() {
   );
 }
 
+// Рекурсивный компонент — рисует папку и её вложенные папки
 interface FolderNodeProps {
   folder: Folder;
   depth: number;
   activeFolderId: number | null;
-  onSelect: (id: number) => void;
+  onSelect: (id: number, name: string) => void;
 }
 
 function FolderNode({ folder, depth, activeFolderId, onSelect }: FolderNodeProps) {
+  // Раскрыта ли папка (показывать ли children)
   const [expanded, setExpanded] = useState(false);
   const hasChildren = folder.children && folder.children.length > 0;
 
@@ -84,10 +88,11 @@ function FolderNode({ folder, depth, activeFolderId, onSelect }: FolderNodeProps
         isActive={activeFolderId === folder.id}
         hasChildren={hasChildren}
         expanded={expanded}
-        onClick={() => onSelect(folder.id)}
+        onClick={() => onSelect(folder.id, folder.name)}
         onExpandToggle={() => setExpanded((prev) => !prev)}
       />
 
+      {/* Вложенные папки — показываем только если expanded */}
       {expanded && hasChildren && (
         <div>
           {folder.children!.map((child) => (
@@ -105,6 +110,7 @@ function FolderNode({ folder, depth, activeFolderId, onSelect }: FolderNodeProps
   );
 }
 
+// Визуальный компонент одной строки папки
 interface FolderItemProps {
   label: string;
   depth: number;
@@ -131,12 +137,13 @@ function FolderItem({
       style={{ paddingLeft: `${0.5 + depth * 1}rem` }}
       onClick={onClick}
     >
+      {/* Стрелка раскрытия — только если есть дочерние папки */}
       <button
         className={`w-4 h-4 flex items-center justify-center shrink-0 rounded
           transition-transform ${expanded ? "rotate-90" : ""}
           ${hasChildren ? "opacity-100" : "opacity-0 pointer-events-none"}`}
         onClick={(e) => {
-          e.stopPropagation();
+          e.stopPropagation(); // не вызывать onClick родителя
           onExpandToggle?.();
         }}
       >
@@ -145,6 +152,7 @@ function FolderItem({
         </svg>
       </button>
 
+      {/* Иконка папки */}
       <svg
         className={`w-4 h-4 shrink-0 ${isActive ? "text-sky-500" : "text-slate-400"}`}
         fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}
@@ -158,6 +166,7 @@ function FolderItem({
         )}
       </svg>
 
+      {/* Название */}
       <span className="truncate text-xs">{label}</span>
     </div>
   );
