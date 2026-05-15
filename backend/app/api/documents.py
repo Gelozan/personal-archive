@@ -17,7 +17,7 @@ from app.core.actions import ACTION_UPLOAD, ACTION_UPDATE_METADATA, ACTION_MOVE_
 
 router = APIRouter(prefix="/documents", tags=["documents"])
 
-ALLOWED_MIME_TYPES = {"application/pdf", "image/jpeg", "image/png"}
+ALLOWED_MIME_TYPES = {"application/pdf", "image/jpeg", "image/png", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"}
 
 
 def get_document_or_404(document_id: int, owner_id: int, db: Session) -> Document:
