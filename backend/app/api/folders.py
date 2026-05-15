@@ -37,8 +37,34 @@ def get_folders(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    folders = db.query(Folder).filter(Folder.owner_id == current_user.id).all()
+    folders = db.query(Folder).filter(Folder.owner_id == current_user.id).order_by(Folder.name.asc()).all()
     return build_tree(folders)
+
+
+@router.get("/children", response_model=list[FolderResponse])
+def get_folder_children(
+    folder_id: int | None = None,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    if folder_id is not None:
+        get_folder_or_404(folder_id, current_user.id, db)
+        
+    query = db.query(Folder).filter(Folder.owner_id == current_user.id)
+    if folder_id is not None:
+        query = query.filter(Folder.parent_id == folder_id)
+    else:
+        query = query.filter(Folder.parent_id == None)
+    return query.order_by(Folder.name.asc()).all()
+
+
+@router.get("/{folder_id}", response_model=FolderResponse)
+def get_folder(
+    folder_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    return get_folder_or_404(folder_id, current_user.id, db)
 
 
 @router.post("/", response_model=FolderResponse, status_code=status.HTTP_201_CREATED)
