@@ -4,9 +4,9 @@ import secrets
 from datetime import datetime, timedelta, timezone
 
 from app.core.database import get_db
-from app.core.security import hash_password, verify_password, create_access_token, create_refresh_token
+from app.core.security import hash_password, verify_password, create_access_token, create_refresh_token, decode_token
 from app.models.user import User
-from app.schemas.user import UserCreate, UserResponse, UserLogin, ForgotPasswordRequest, ResetPasswordRequest
+from app.schemas.user import UserCreate, UserResponse, UserLogin, ForgotPasswordRequest, ResetPasswordRequest, RefreshTokenRequest, TokenResponse
 from app.core.dependencies import get_current_user
 from app.core.initial_data import assign_default_categories_to_user
 from app.models.password_reset import PasswordResetToken
@@ -101,3 +101,45 @@ def reset_password(data: ResetPasswordRequest, request: Request, db: Session = D
     reset_token.used = True
     db.commit()
     create_audit_log(db, action=ACTION_RESET_PASSWORD, user_id=user.id, request=request)
+
+
+@router.post("/refresh", response_model=TokenResponse)
+def refresh_token(
+    body: RefreshTokenRequest,
+    db: Session = Depends(get_db),
+):
+    payload = decode_token(body.refresh_token)
+
+    if payload is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Недействительный или истёкший refresh token",
+        )
+
+    if payload.get("type") != "refresh":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Неверный тип токена",
+        )
+
+    user_id = payload.get("sub")
+    if user_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Недействительный токен",
+        )
+
+    user = db.query(User).filter(User.id == int(user_id)).first()
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Пользователь не найден",
+        )
+
+    new_access_token = create_access_token({"sub": str(user.id)})
+    new_refresh_token = create_refresh_token({"sub": str(user.id)})
+
+    return TokenResponse(
+        access_token=new_access_token,
+        refresh_token=new_refresh_token,
+    )
