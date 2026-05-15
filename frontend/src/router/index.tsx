@@ -4,6 +4,7 @@ import LoginPage from "@/pages/LoginPage";
 import RegisterPage from "@/pages/RegisterPage";
 import ForgotPasswordPage from "@/pages/ForgotPasswordPage";
 import ResetPasswordPage from "@/pages/ResetPasswordPage";
+import MainPage from "@/pages/MainPage";
 
 function PublicRoute({ children }: { children: React.ReactNode }) {
   const token = useAuthStore((s) => s.accessToken);
@@ -24,8 +25,7 @@ export default function AppRouter() {
         <Route path="/forgot-password" element={<PublicRoute><ForgotPasswordPage /></PublicRoute>} />
         <Route path="/reset-password/:token" element={<PublicRoute><ResetPasswordPage /></PublicRoute>} />
 
-        {/* Главный экран */}
-        <Route path="/" element={<PrivateRoute><div>Главный экран (в разработке)</div></PrivateRoute>} />
+        <Route path="/" element={<PrivateRoute><MainPage /></PrivateRoute>} />
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
