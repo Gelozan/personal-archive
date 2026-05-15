@@ -8,7 +8,6 @@ export interface Folder {
 export interface Category {
   id: number;
   name: string;
-  color: string | null;
 }
 
 export interface Document {
