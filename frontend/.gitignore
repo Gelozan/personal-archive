@@ -1,28 +1,24 @@
-# Зависимости — устанавливаются внутри контейнера
-node_modules
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-# Артефакты сборки
+node_modules
 dist
 dist-ssr
+*.local
 
-# Локальные env-файлы
-.env
-.env.local
-.env.*.local
-
-# Мусор редакторов и ОС
-.vscode
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
 .idea
 .DS_Store
 *.suo
+*.ntvs*
+*.njsproj
+*.sln
 *.sw?
-
-# Логи
-*.log
-npm-debug.log*
-pnpm-debug.log*
-
-# Не нужны внутри образа
-README.md
-Dockerfile
-.gitignore
