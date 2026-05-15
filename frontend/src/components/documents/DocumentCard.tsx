@@ -75,7 +75,7 @@ export default function DocumentCard({ document, onClick }: DocumentCardProps) {
           {document.title}
         </p>
         <p className="text-xs text-slate-400 truncate mt-0.5">
-          {document.file_name}
+          {document.original_filename}
         </p>
       </div>
 

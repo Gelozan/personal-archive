@@ -13,9 +13,11 @@ export interface Category {
 export interface Document {
   id: number;
   title: string;
-  file_name: string;
+  original_filename: string;
   file_size: number;
   mime_type: string;
+  note: string | null;
+  category_id: number | null;
   folder_id: number | null;
   created_at: string;
   updated_at: string;

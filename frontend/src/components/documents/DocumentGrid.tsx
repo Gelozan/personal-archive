@@ -116,7 +116,7 @@ export default function DocumentGrid({ onDocumentClick }: DocumentGridProps) {
     <div>
       {/* Заголовок колонок */}
       {documents.length > 0 && (
-        <div className="flex items-center gap-3 px-3 py-1 mb-1">
+        <div className="flex items-center gap-3 pl-3 pr-12 py-1 mb-1">
           <span className="flex-1 text-xs text-slate-400 font-medium">Имя</span>
           <span className="text-xs text-slate-400 font-medium w-20 text-right">Размер</span>
           <span className="text-xs text-slate-400 font-medium w-28 text-right">Изменён</span>
