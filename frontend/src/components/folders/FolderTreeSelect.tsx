@@ -11,7 +11,7 @@ export default function FolderTreeSelect({ value, onChange }: FolderTreeSelectPr
   const [folders, setFolders] = useState<Folder[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
-  const [selectedLabel, setSelectedLabel] = useState("— Корень (без папки)");
+  const [selectedLabel, setSelectedLabel] = useState("Корневой каталог");
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -80,11 +80,11 @@ export default function FolderTreeSelect({ value, onChange }: FolderTreeSelectPr
           rounded-lg shadow-lg overflow-hidden">
           <div className="max-h-48 overflow-y-auto py-1">
             <FolderSelectItem
-              label="— Корень (без папки)"
+              label="Корневой каталог"
               depth={0}
               isActive={value === null}
               isRoot
-              onClick={() => handleSelect(null, "— Корень (без папки)")}
+              onClick={() => handleSelect(null, "Корневой каталог")}
             />
             {folders.map((folder) => (
               <FolderSelectNode
