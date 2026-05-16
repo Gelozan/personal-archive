@@ -6,7 +6,7 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.core.dependencies import get_current_user
+from app.core.dependencies import get_current_user, get_document_or_404, get_folder_or_404, get_category_or_404
 from app.core.storage import upload_file, delete_file, get_presigned_url, s3_client
 from app.core.config import settings
 from app.models.user import User
@@ -18,17 +18,6 @@ from app.core.actions import ACTION_UPLOAD, ACTION_UPDATE_METADATA, ACTION_MOVE_
 router = APIRouter(prefix="/documents", tags=["documents"])
 
 ALLOWED_MIME_TYPES = {"application/pdf", "image/jpeg", "image/png", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"}
-
-
-def get_document_or_404(document_id: int, owner_id: int, db: Session) -> Document:
-    doc = db.query(Document).filter(
-        Document.id == document_id,
-        Document.owner_id == owner_id,
-        Document.is_deleted == False,
-    ).first()
-    if not doc:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Document not found")
-    return doc
 
 
 @router.post("/", response_model=DocumentResponse, status_code=status.HTTP_201_CREATED)
@@ -119,6 +108,11 @@ def update_document(
     current_user: User = Depends(get_current_user),
 ):
     doc = get_document_or_404(document_id, current_user.id, db)
+
+    if data.folder_id is not None:
+        get_folder_or_404(data.folder_id, current_user.id, db)
+    if data.category_id is not None:
+        get_category_or_404(data.category_id, current_user.id, db)
 
     # model_fields_set содержит только поля которые были переданы в запросе
     for field in data.model_fields_set:

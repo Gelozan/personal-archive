@@ -2,26 +2,16 @@ from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.core.dependencies import get_current_user
+from app.core.dependencies import get_current_user, get_trashed_or_404
 from app.core.storage import delete_file
 from app.models.user import User
 from app.models.document import Document
+from app.models.folder import Folder
 from app.schemas.document import DocumentResponse
 from app.core.audit import create_audit_log
 from app.core.actions import ACTION_RESTORE, ACTION_DELETE_PERMANENT
 
 router = APIRouter(prefix="/trash", tags=["trash"])
-
-
-def get_trashed_or_404(document_id: int, owner_id: int, db: Session) -> Document:
-    doc = db.query(Document).filter(
-        Document.id == document_id,
-        Document.owner_id == owner_id,
-        Document.is_deleted == True,
-    ).first()
-    if not doc:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Document not found in trash")
-    return doc
 
 
 @router.get("/", response_model=list[DocumentResponse])
@@ -45,6 +35,13 @@ def restore_document(
     doc = get_trashed_or_404(document_id, current_user.id, db)
     doc.is_deleted = False
     doc.deleted_at = None
+    if doc.folder_id is not None:
+        folder_exists = db.query(Folder).filter(
+            Folder.id == doc.folder_id,
+            Folder.owner_id == current_user.id,
+        ).first()
+        if not folder_exists:
+            doc.folder_id = None
     db.commit()
     db.refresh(doc)
     create_audit_log(db, action=ACTION_RESTORE, user_id=current_user.id, document_id=doc.id, request=request)
