@@ -216,7 +216,7 @@ export default function UploadModal({ onClose, onSuccess }: UploadModalProps) {
           </div>
 
           {/* Category + Folder — в одну строку */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1">
               <label className="text-xs font-medium text-slate-600">Категория</label>
               <select
@@ -226,7 +226,7 @@ export default function UploadModal({ onClose, onSuccess }: UploadModalProps) {
                   bg-white text-slate-800 focus:outline-none focus:border-sky-400
                   focus:ring-2 focus:ring-sky-100 transition-all"
               >
-                <option value="">— Без категории</option>
+                <option value="">—Без категории—</option>
                 {categories.map((c) => (
                   <option key={c.id} value={c.id}>{c.name}</option>
                 ))}
