@@ -38,7 +38,7 @@ function getMimeLabel(mime: string): string {
 export default function DocumentViewer({ document, onClose, onUpdate, onTrash }: DocumentViewerProps) {
   const [presignedUrl, setPresignedUrl] = useState<string | null>(null);
   const [loadingUrl, setLoadingUrl] = useState(true);
-
+  const [downloading, setDownloading] = useState(false);
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(document.title);
   const [note, setNote] = useState(document.note ?? "");
@@ -134,8 +134,23 @@ export default function DocumentViewer({ document, onClose, onUpdate, onTrash }:
     }
   }
 
-  function handleDownload() {
-    if (presignedUrl) window.open(presignedUrl, "_blank");
+  async function handleDownload() {
+    if (!presignedUrl) return;
+    setDownloading(true);
+    try {
+        const response = await fetch(presignedUrl);
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        const a = globalThis.document.createElement("a");
+        a.href = url;
+        a.download = document.original_filename;
+        a.click();
+        URL.revokeObjectURL(url);
+    } catch {
+        window.open(presignedUrl, "_blank");
+    } finally {
+        setDownloading(false);
+    }
   }
 
   return (
@@ -194,15 +209,24 @@ export default function DocumentViewer({ document, onClose, onUpdate, onTrash }:
             )}
 
             {/* Скачать */}
-            <button onClick={handleDownload} disabled={!presignedUrl}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg
-                text-slate-600 hover:bg-slate-100 transition-all disabled:opacity-40"
-              title="Скачать">
-              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <button
+              onClick={handleDownload}
+              disabled={!presignedUrl || downloading}
+              className="flex items-center gap-1.5 px-2 md:px-3 py-1.5 text-xs rounded-lg
+                  text-slate-600 hover:bg-slate-100 transition-all disabled:opacity-40" title="Скачать"
+            >
+              {downloading ? (
+                <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                </svg>
+              ) : (
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round"
-                  d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
-              </svg>
-              <span className="hidden md:inline">Скачать</span>
+                    d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                </svg>
+              )}
+              <span className="hidden md:inline">{downloading ? "Скачивание..." : "Скачать"}</span>
             </button>
 
             {/* В корзину */}
