@@ -2,12 +2,6 @@ from datetime import datetime
 from sqlalchemy import String, Text, Boolean, Integer, DateTime, ForeignKey, func, Index
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.core.database import Base
-<<<<<<< HEAD
-from app.models.user import User
-from app.models.folder import Folder
-from app.models.category import Category
-from app.models.share_link import ShareLink
-=======
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -15,8 +9,6 @@ if TYPE_CHECKING:
     from app.models.folder import Folder
     from app.models.category import Category
     from app.models.share_link import ShareLink
->>>>>>> fix/different-fixes
-
 
 class Document(Base):
     __tablename__ = "documents"
