@@ -1,0 +1,36 @@
+# Виртуальное окружение Python
+.venv
+venv
+env
+
+# Кеш Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Переменные окружения — секреты не должны попасть в образ
+.env
+.env.*
+!.env.example
+
+# Артефакты тестов и покрытия
+.pytest_cache
+.coverage
+htmlcov
+
+# Мусор редакторов и ОС
+.vscode
+.idea
+.DS_Store
+*.suo
+*.sw?
+
+# Git
+.git
+.gitignore
+
+# Не нужны внутри образа
+Dockerfile
+README*
