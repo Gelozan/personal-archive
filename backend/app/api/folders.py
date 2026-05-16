@@ -69,6 +69,17 @@ def create_folder(
     if data.parent_id is not None:
         get_folder_or_404(data.parent_id, current_user.id, db)
 
+    exists = db.query(Folder).filter(
+        Folder.owner_id == current_user.id,
+        Folder.name == data.name,
+        Folder.parent_id == data.parent_id,
+    ).first()
+    if exists:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Папка с таким названием уже существует",
+        )
+
     folder = Folder(name=data.name, owner_id=current_user.id, parent_id=data.parent_id)
     db.add(folder)
     db.commit()
@@ -86,6 +97,19 @@ def update_folder(
     current_user: User = Depends(get_current_user),
 ):
     folder = get_folder_or_404(folder_id, current_user.id, db)
+
+    if data.name and data.name != folder.name:
+        exists = db.query(Folder).filter(
+            Folder.owner_id == current_user.id,
+            Folder.name == data.name,
+            Folder.parent_id == folder.parent_id,
+            Folder.id != folder.id,
+        ).first()
+        if exists:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Папка с таким названием уже существует",
+            )
 
     if data.parent_id is not None:
         if data.parent_id == folder_id:

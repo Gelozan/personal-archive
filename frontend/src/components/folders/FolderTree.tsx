@@ -48,6 +48,7 @@ export default function FolderTree() {
       }
     } finally {
       setCreating(false);
+      setCreatingRoot(false);
       submittedRef.current = false;
     }
   }
@@ -174,6 +175,10 @@ function FolderNode({
     try {
       await api.patch(`/api/v1/folders/${folder.id}`, { name: renameName.trim() });
       await onRefresh();
+    } catch (err: any) {
+      if (err?.response?.status === 409) {
+        setRenaming(true);
+      }
     } finally {
       setRenameLoading(false);
       setRenaming(false);
@@ -190,8 +195,13 @@ function FolderNode({
       setChildName("");
       setCreatingChild(false);
       await onRefresh();
+    } catch (err: any) {
+        if (err?.response?.status === 409) {
+          alert(`Папка с именем «${childName.trim()}» уже существует`);
+        }
     } finally {
       setChildLoading(false);
+      setCreatingChild(false);
       submittedRef.current = false;
     }
   }

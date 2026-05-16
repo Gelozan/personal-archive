@@ -36,6 +36,15 @@ def create_category(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    exists = db.query(Category).filter(
+        Category.owner_id == current_user.id,
+        Category.name == data.name,
+    ).first()
+    if exists:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Категория с таким названием уже существует",
+        )
     category = Category(name=data.name, owner_id=current_user.id)
     db.add(category)
     db.commit()
