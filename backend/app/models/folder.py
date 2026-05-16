@@ -9,6 +9,7 @@ class Folder(Base):
     __table_args__ = (
         Index("ix_folders_owner_id", "owner_id"),
         Index("ix_folders_parent_id", "parent_id"),
+        UniqueConstraint("owner_id", "parent_id", "name", name="uq_folder_owner_parent_name"),
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)

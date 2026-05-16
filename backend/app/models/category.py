@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import String, DateTime, ForeignKey, func, Index
+from sqlalchemy import String, DateTime, ForeignKey, UniqueConstraint, func, Index
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.core.database import Base
 from app.models.user import User
@@ -9,6 +9,7 @@ class Category(Base):
     __tablename__ = "categories"
     __table_args__ = (
         Index("ix_categories_owner_id", "owner_id"),
+        UniqueConstraint("owner_id", "name", name="uq_category_owner_name"),
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)
