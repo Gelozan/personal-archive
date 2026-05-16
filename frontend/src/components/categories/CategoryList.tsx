@@ -36,8 +36,14 @@ export default function CategoryList() {
       setNewName("");
       setCreating(false);
       await loadCategories();
+    } catch (err: any) {
+      const status = err?.response?.status;
+      if (status === 409 || status === 400) {
+        alert(`Категория «${newName.trim()}» уже существует`);
+      }
     } finally {
       setCreateLoading(false);
+      setCreating(false);
       submittedRef.current = false;
     }
   }
