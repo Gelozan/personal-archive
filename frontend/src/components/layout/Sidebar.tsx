@@ -1,4 +1,5 @@
 import { type SidebarView } from "./AppLayout";
+import { useNavigate, useLocation } from "react-router-dom";
 
 interface SidebarProps {
   activeView: SidebarView;
@@ -12,6 +13,9 @@ interface NavItem {
 }
 
 export default function Sidebar({ activeView, onToggle }: SidebarProps) {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const isTrash = location.pathname === "/trash";
   const navItems: NavItem[] = [
     {
       view: "folders",
@@ -67,8 +71,12 @@ export default function Sidebar({ activeView, onToggle }: SidebarProps) {
       {/* Нижние кнопки — корзина и профиль */}
       <div className="flex flex-col items-center gap-1 mt-auto">
         <button
+          onClick={() => navigate("/trash")}
           title="Корзина"
-          className="w-10 h-10 rounded-xl flex items-center justify-center text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-all"
+          className={`w-10 h-10 rounded-xl flex items-center justify-center text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-all"
+          ${isTrash
+          ? "bg-red-50 text-red-400"
+          : "text-slate-400 hover:bg-slate-100 hover:text-slate-600"}`}
         >
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
             <path strokeLinecap="round" strokeLinejoin="round"
