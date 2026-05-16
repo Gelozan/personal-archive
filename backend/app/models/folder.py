@@ -23,7 +23,7 @@ class Folder(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
-    owner: Mapped["User"] = relationship("User", back_populates="folders")
-    parent: Mapped["Folder | None"] = relationship("Folder", remote_side="Folder.id", back_populates="children")
-    children: Mapped[list["Folder"]] = relationship("Folder", back_populates="parent", cascade="all, delete-orphan")
-    documents: Mapped[list["Document"]] = relationship("Document", back_populates="folder")
+    owner: Mapped["User"] = relationship("User", back_populates="folders") # noqa: F821
+    parent: Mapped["Folder | None"] = relationship("Folder", remote_side="Folder.id", back_populates="children") # noqa: F821
+    children: Mapped[list["Folder"]] = relationship("Folder", back_populates="parent", cascade="all, delete-orphan") # noqa: F821
+    documents: Mapped[list["Document"]] = relationship("Document", back_populates="folder") # noqa: F821

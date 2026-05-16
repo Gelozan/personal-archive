@@ -34,5 +34,5 @@ class UserCategory(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
     category_id: Mapped[int] = mapped_column(ForeignKey("categories.id", ondelete="CASCADE"), primary_key=True)
 
-    user: Mapped["User"] = relationship("User", back_populates="user_categories")
-    category: Mapped["Category"] = relationship("Category", back_populates="user_categories")
+    user: Mapped["User"] = relationship("User", back_populates="user_categories") # noqa: F821
+    category: Mapped["Category"] = relationship("Category", back_populates="user_categories") # noqa: F821
