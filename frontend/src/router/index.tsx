@@ -5,6 +5,7 @@ import RegisterPage from "@/pages/RegisterPage";
 import ForgotPasswordPage from "@/pages/ForgotPasswordPage";
 import ResetPasswordPage from "@/pages/ResetPasswordPage";
 import MainPage from "@/pages/MainPage";
+import TrashPage from "@/pages/TrashPage";
 
 function PublicRoute({ children }: { children: React.ReactNode }) {
   const token = useAuthStore((s) => s.accessToken);
@@ -26,7 +27,7 @@ export default function AppRouter() {
         <Route path="/reset-password/:token" element={<PublicRoute><ResetPasswordPage /></PublicRoute>} />
 
         <Route path="/" element={<PrivateRoute><MainPage /></PrivateRoute>} />
-
+        <Route path="/trash" element={<PrivateRoute><TrashPage /></PrivateRoute>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
