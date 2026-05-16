@@ -8,6 +8,7 @@ export interface Folder {
 export interface Category {
   id: number;
   name: string;
+  owner_id: number | null;
 }
 
 export interface Document {

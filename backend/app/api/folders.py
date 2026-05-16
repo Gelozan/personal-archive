@@ -5,7 +5,7 @@ from app.core.database import get_db
 from app.core.dependencies import get_current_user
 from app.models.user import User
 from app.models.folder import Folder
-from backend.app.models.document import Document
+from app.models.document import Document
 from app.schemas.folder import FolderCreate, FolderUpdate, FolderResponse, FolderTree
 from app.core.audit import create_audit_log
 from app.core.actions import ACTION_CREATE_FOLDER, ACTION_UPDATE_FOLDER, ACTION_DELETE_FOLDER, ACTION_MOVE_TO_TRASH
