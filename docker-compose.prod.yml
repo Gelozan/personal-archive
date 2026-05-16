@@ -1,0 +1,106 @@
+services:
+  postgres:
+    ports: !reset []
+    restart: always
+
+  backend:
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4
+    ports: !reset []
+    volumes: !reset []
+    restart: always
+
+  frontend:
+    build: ./frontend
+    container_name: pa_frontend
+    networks:
+      - pa_network
+    restart: always
+    depends_on:
+      - backend
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: pa_nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./infrastructure/nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./infrastructure/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - certbot_www:/var/www/certbot:ro
+      - certbot_certs:/etc/letsencrypt:ro
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - pa_network
+    restart: always
+
+  certbot:
+    image: certbot/certbot:latest
+    container_name: pa_certbot
+    volumes:
+      - certbot_www:/var/www/certbot
+      - certbot_certs:/etc/letsencrypt
+    entrypoint: /bin/sh -c "trap exit TERM; while :; do certbot renew --webroot -w /var/www/certbot --quiet; sleep 12h & wait $${!}; done"
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: pa_prometheus
+    volumes:
+      - ./infrastructure/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.retention.time=15d"
+    networks:
+      - pa_network
+    restart: always
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: pa_grafana
+    env_file: ./infrastructure/env/monitoring.env
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./infrastructure/monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+    networks:
+      - pa_network
+    restart: always
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: pa_node_exporter
+    pid: host
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - "--path.procfs=/host/proc"
+      - "--path.sysfs=/host/sys"
+      - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
+    networks:
+      - pa_network
+    restart: always
+
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:latest
+    container_name: pa_postgres_exporter
+    env_file: ./infrastructure/env/postgres-exporter.env
+    networks:
+      - pa_network
+    restart: always
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
+  certbot_www:
+  certbot_certs:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  pa_network:
+    driver: bridge
