@@ -22,4 +22,5 @@ export interface Document {
   folder_id: number | null;
   created_at: string;
   updated_at: string;
+  deleted_at: string | null;
 }
