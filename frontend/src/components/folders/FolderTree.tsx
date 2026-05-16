@@ -45,6 +45,7 @@ export default function FolderTree() {
       const status = err?.response?.status;
       if (status === 409 || status === 400) {
         alert(`Папка с именем «${newFolderName.trim()}» уже существует`);
+        createInputRef.current?.select();
       }
     } finally {
       setCreating(false);
@@ -190,6 +191,10 @@ function FolderNode({
       setChildName("");
       setCreatingChild(false);
       await onRefresh();
+    } catch (err: any) {
+        if (err?.response?.status === 409) {
+          childInputRef.current?.select();
+        }
     } finally {
       setChildLoading(false);
       submittedRef.current = false;
@@ -203,6 +208,11 @@ function FolderNode({
       // Если удалили активную папку — переходим в корень
       if (currentActiveFolderId === folder.id) onActiveFolderDeleted();
       await onRefresh();
+    } catch (err: any) {
+      if (err?.response?.status === 409) {
+        setRenaming(true);
+        renameInputRef.current?.select();
+      }
     } finally {
       setDeleteLoading(false);
       setDeleteConfirm(false);
