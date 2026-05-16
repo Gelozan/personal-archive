@@ -264,7 +264,7 @@ function FolderNode({
         <div className="mx-2 my-1 p-2.5 bg-red-50 border border-red-100 rounded-lg">
           <p className="text-xs text-slate-700 mb-2">
             Удалить папку <span className="font-medium">«{folder.name}»</span>?
-            Документы внутри потеряют привязку к папке.
+            Все документы внутри отправятся в корзину.
           </p>
           <div className="flex gap-2">
             <button

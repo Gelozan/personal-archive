@@ -16,6 +16,7 @@ export default function Sidebar({ activeView, onToggle }: SidebarProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const isTrash = location.pathname === "/trash";
+  const isProfile = location.pathname === "/profile";
   const navItems: NavItem[] = [
     {
       view: "folders",
@@ -85,8 +86,12 @@ export default function Sidebar({ activeView, onToggle }: SidebarProps) {
         </button>
 
         <button
+          onClick={() => navigate("/profile")}
           title="Профиль"
-          className="w-10 h-10 rounded-xl flex items-center justify-center text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-all"
+          className={`w-10 h-10 rounded-xl flex items-center justify-center text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-all"
+          ${isProfile
+          ? "bg-blue-50 text-blue-600"
+          : "text-slate-400 hover:bg-slate-100 hover:text-slate-600"}`}
         >
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
             <path strokeLinecap="round" strokeLinejoin="round"
