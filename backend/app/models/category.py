@@ -2,6 +2,7 @@ from sqlalchemy import String, ForeignKey, UniqueConstraint, Index
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.core.database import Base
 from app.models.user import User
+from app.models.document import Document
 
 
 class Category(Base):
