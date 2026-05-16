@@ -10,7 +10,7 @@ DEFAULT_CATEGORIES = [
 
 
 def create_default_categories(db: Session) -> None:
-    existing = db.query(Category).filter(Category.owner_id == None).count()
+    existing = db.query(Category).filter(Category.owner_id.is_(None)).count()
     if existing > 0:
         return
     for name in DEFAULT_CATEGORIES:
@@ -19,7 +19,7 @@ def create_default_categories(db: Session) -> None:
 
 
 def assign_default_categories_to_user(db: Session, user: User) -> None:
-    system_categories = db.query(Category).filter(Category.owner_id == None).all()
+    system_categories = db.query(Category).filter(Category.owner_id.is_(None)).all()
     for category in system_categories:
         db.add(UserCategory(user_id=user.id, category_id=category.id))
     db.commit()

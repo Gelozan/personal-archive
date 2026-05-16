@@ -28,7 +28,7 @@ def search_documents(
 ):
     query = db.query(Document).filter(
         Document.owner_id == current_user.id,
-        Document.is_deleted == False,
+        Document.is_deleted.is_(False),
     )
 
     if q:

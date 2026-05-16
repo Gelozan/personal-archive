@@ -28,7 +28,7 @@ def create_share_link(
     doc = db.query(Document).filter(
         Document.id == document_id,
         Document.owner_id == current_user.id,
-        Document.is_deleted == False,
+        Document.is_deleted.is_(False),
     ).first()
     if not doc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Document not found")
@@ -36,7 +36,7 @@ def create_share_link(
     # деактивируем предыдущие ссылки на этот документ
     db.query(ShareLink).filter(
         ShareLink.document_id == document_id,
-        ShareLink.is_active == True,
+        ShareLink.is_active.is_(True),
     ).update({"is_active": False})
 
     link = ShareLink(
@@ -67,7 +67,7 @@ def revoke_share_link(
 
     link = db.query(ShareLink).filter(
         ShareLink.document_id == document_id,
-        ShareLink.is_active == True,
+        ShareLink.is_active.is_(True),
     ).first()
     db.delete(link)
     db.commit()
@@ -82,7 +82,7 @@ def access_shared_document(
 ):
     link = db.query(ShareLink).filter(
         ShareLink.token == token,
-        ShareLink.is_active == True,
+        ShareLink.is_active.is_(True),
     ).first()
 
     if not link:

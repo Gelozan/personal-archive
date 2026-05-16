@@ -2,6 +2,8 @@ from datetime import datetime
 from sqlalchemy import String, DateTime, ForeignKey, func, UniqueConstraint, Index
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.core.database import Base
+from app.models.user import User
+from app.models.document import Document
 
 
 class Folder(Base):
@@ -9,6 +11,7 @@ class Folder(Base):
     __table_args__ = (
         Index("ix_folders_owner_id", "owner_id"),
         Index("ix_folders_parent_id", "parent_id"),
+        UniqueConstraint("owner_id", "parent_id", "name", name="uq_folder_owner_parent_name"),
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)
