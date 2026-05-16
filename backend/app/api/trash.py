@@ -21,7 +21,7 @@ def get_trash(
 ):
     return db.query(Document).filter(
         Document.owner_id == current_user.id,
-        Document.is_deleted == True,
+        Document.is_deleted.is_(True),
     ).order_by(Document.deleted_at.desc()).all()
 
 

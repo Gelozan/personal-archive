@@ -67,7 +67,7 @@ def get_document_or_404(document_id: int, owner_id: int, db: Session) -> Documen
     doc = db.query(Document).filter(
         Document.id == document_id,
         Document.owner_id == owner_id,
-        Document.is_deleted == False,
+        Document.is_deleted.is_(False),
     ).first()
     if not doc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Документ не найден")
@@ -78,7 +78,7 @@ def get_trashed_or_404(document_id: int, owner_id: int, db: Session) -> Document
     doc = db.query(Document).filter(
         Document.id == document_id,
         Document.owner_id == owner_id,
-        Document.is_deleted == True,
+        Document.is_deleted.is_(True),
     ).first()
     if not doc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Документ не найден в корзине")

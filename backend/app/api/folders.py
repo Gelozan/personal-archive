@@ -46,7 +46,7 @@ def get_folder_children(
     if folder_id is not None:
         query = query.filter(Folder.parent_id == folder_id)
     else:
-        query = query.filter(Folder.parent_id == None)
+        query = query.filter(Folder.parent_id.is_(None))
     return query.order_by(Folder.name.asc()).all()
 
 
@@ -128,13 +128,12 @@ def delete_folder(
     all_folder_ids = _collect_folder_ids(db, folder_id, current_user.id)
     all_folder_ids.append(folder_id)
 
-    now = datetime.now(timezone.utc)
     docs_to_trash = (
         db.query(Document)
         .filter(
             Document.owner_id == current_user.id,
             Document.folder_id.in_(all_folder_ids),
-            Document.is_deleted == False,
+            Document.is_deleted.is_(False),
         )
         .all()
     )

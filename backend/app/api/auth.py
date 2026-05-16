@@ -61,7 +61,7 @@ def forgot_password(data: ForgotPasswordRequest, request: Request, db: Session =
     # Инвалидируем старые токены этого пользователя
     db.query(PasswordResetToken).filter(
         PasswordResetToken.user_id == user.id,
-        PasswordResetToken.used == False,
+        PasswordResetToken.used.is_(False),
     ).update({"used": True})
 
     token = secrets.token_urlsafe(32)
@@ -80,7 +80,7 @@ def forgot_password(data: ForgotPasswordRequest, request: Request, db: Session =
 def reset_password(data: ResetPasswordRequest, request: Request, db: Session = Depends(get_db)):
     reset_token = db.query(PasswordResetToken).filter(
         PasswordResetToken.token == data.token,
-        PasswordResetToken.used == False,
+        PasswordResetToken.used.is_(False),
     ).first()
 
     if not reset_token:

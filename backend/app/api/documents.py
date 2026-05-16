@@ -68,12 +68,12 @@ def get_documents(
 ):
     query = db.query(Document).filter(
         Document.owner_id == current_user.id,
-        Document.is_deleted == False,
+        Document.is_deleted.is_(False),
     )
     if folder_id is not None:
         query = query.filter(Document.folder_id == folder_id)
     else:
-        query = query.filter(Document.folder_id == None)
+        query = query.filter(Document.folder_id.is_(None))
     return query.order_by(Document.created_at.desc()).all()
 
 
