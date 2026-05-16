@@ -2,18 +2,17 @@ import uuid
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, status, Request
-from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.core.dependencies import get_current_user, get_document_or_404, get_folder_or_404, get_category_or_404
-from app.core.storage import upload_file, delete_file, get_presigned_url, s3_client
+from app.core.storage import upload_file, get_presigned_url
 from app.core.config import settings
 from app.models.user import User
 from app.models.document import Document
 from app.schemas.document import DocumentResponse, DocumentUpdate
 from app.core.audit import create_audit_log
-from app.core.actions import ACTION_UPLOAD, ACTION_UPDATE_METADATA, ACTION_MOVE_TO_TRASH, ACTION_RESTORE, ACTION_DELETE_PERMANENT, ACTION_DOWNLOAD
+from app.core.actions import ACTION_UPLOAD, ACTION_UPDATE_METADATA, ACTION_MOVE_TO_TRASH, ACTION_DOWNLOAD
 
 router = APIRouter(prefix="/documents", tags=["documents"])
 
