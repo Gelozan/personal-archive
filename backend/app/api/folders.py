@@ -10,7 +10,6 @@ from app.schemas.folder import FolderCreate, FolderUpdate, FolderResponse, Folde
 from app.core.audit import create_audit_log
 from app.core.actions import ACTION_CREATE_FOLDER, ACTION_UPDATE_FOLDER, ACTION_DELETE_FOLDER, ACTION_MOVE_TO_TRASH
 from app.core.dependencies import get_folder_or_404
-from sqlalchemy.exc import IntegrityError
 
 router = APIRouter(prefix="/folders", tags=["folders"])
 
@@ -104,10 +103,13 @@ def update_folder(
             Folder.owner_id == current_user.id,
             Folder.name == data.name,
             Folder.parent_id == folder.parent_id,
-            Folder.id != folder.id,  # не считаем саму себя
+            Folder.id != folder.id,
         ).first()
         if exists:
-            raise HTTPException(409, "Папка с таким названием уже существует")
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Папка с таким названием уже существует",
+            )
 
     if data.parent_id is not None:
         if data.parent_id == folder_id:
