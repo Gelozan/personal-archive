@@ -26,7 +26,7 @@ export default function Header({ onUpload }: HeaderProps) {
     filters.size_min !== "" ||
     filters.size_max !== "" ||
     filters.sort_by !== "created_at" ||
-    filters.sort_order !== "desc";
+    filters.sort_order !== "asc";
 
 
   function handleSearchKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {

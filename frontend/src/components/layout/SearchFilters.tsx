@@ -17,7 +17,7 @@ export const EMPTY_FILTERS: Filters = {
   size_min: "",
   size_max: "",
   sort_by: "created_at",
-  sort_order: "desc",
+  sort_order: "asc",
 };
 
 interface SearchFiltersProps {
@@ -43,15 +43,6 @@ export default function SearchFilters({ filters, onChange, onClose }: SearchFilt
     onChange(EMPTY_FILTERS);
     onClose();
   }
-
-  const isDefault =
-    local.mime_type === "" &&
-    local.date_from === "" &&
-    local.date_to === "" &&
-    local.size_min === "" &&
-    local.size_max === "" &&
-    local.sort_by === "created_at" &&
-    local.sort_order === "desc";
 
   return (
     <div className="bg-white border-b border-slate-200 px-6 py-4 flex flex-wrap gap-4 items-end">
@@ -144,12 +135,12 @@ export default function SearchFilters({ filters, onChange, onClose }: SearchFilt
               text-slate-500 hover:bg-slate-50 transition-all"
           >
             {local.sort_order === "desc" ? (
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3 4.5h14.25M3 9h9.75M3 13.5h5.25m5.25-.75L17.25 15m0 0l3.75-2.25M17.25 15V6.75" />
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 4.5 15 15m0 0V8.25m0 11.25H8.25" />
               </svg>
             ) : (
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3 4.5h14.25M3 9h9.75M3 13.5h9.75m4.5-4.5v12m0 0l-3.75-3.75M17.25 21l3.75-3.75" />
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25" />
               </svg>
             )}
           </button>
@@ -157,14 +148,12 @@ export default function SearchFilters({ filters, onChange, onClose }: SearchFilt
       </div>
 
       {/* Кнопки */}
-      <div className="flex items-end gap-2 ml-auto">
-        {!isDefault && (
-          <button onClick={handleReset}
+      <div className="flex flex-wrap gap-2">
+        <button onClick={handleReset}
             className="px-3 py-1.5 text-sm rounded-lg text-slate-500
-              hover:bg-slate-100 transition-all">
+            hover:bg-slate-100 transition-all">
             Сбросить
-          </button>
-        )}
+        </button>
         <button onClick={handleApply}
           className="px-4 py-1.5 text-sm rounded-lg bg-sky-500 text-white
             hover:bg-sky-600 transition-all">
