@@ -3,7 +3,7 @@ import { useNavigate, useParams, Link } from "react-router-dom";
 import { api } from "@/api/axios";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
-import { AuthLayout } from "@/components/AuthLayout";
+import { AuthLayout } from "@/components/layout/AuthLayout";
 
 export default function ResetPasswordPage() {
   const { token } = useParams<{ token: string }>();
