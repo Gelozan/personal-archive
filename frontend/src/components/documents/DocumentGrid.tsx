@@ -6,6 +6,7 @@ import DocumentRow from "./DocumentRow";
 import FolderCard from "@/components/folders/FolderCard";
 import FolderRow from "@/components/folders/FolderRow";
 import type { Document, Folder } from "@/types";
+import { EMPTY_FILTERS } from "@/components/layout/SearchFilters";
 
 interface DocumentGridProps {
   onDocumentClick: (doc: Document) => void;
@@ -16,18 +17,29 @@ export default function DocumentGrid({ onDocumentClick }: DocumentGridProps) {
   const [folders, setFolders] = useState<Folder[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const { activeFolderId, activeCategoryId, viewMode, searchQuery, setActiveFolder } = useNavigationStore();
+  const { activeFolderId, activeCategoryId, viewMode, searchQuery, filters,setActiveFolder } = useNavigationStore();
+
+  const isSearchMode = searchQuery.trim() !== "" || JSON.stringify(filters) !== JSON.stringify(EMPTY_FILTERS);
 
   useEffect(() => {
     async function load() {
       setLoading(true);
       try {
         // Режим поиска
-        if (searchQuery.trim()) {
+        if (isSearchMode) {
           setFolders([]);
-          const { data } = await api.get("/api/v1/search/", {
-            params: { q: searchQuery.trim() },
-          });
+          const params: Record<string, string | number> = {
+            sort_by: filters.sort_by,
+            sort_order: filters.sort_order,
+          };
+          if (searchQuery.trim()) params.q = searchQuery.trim();
+          if (filters.mime_type) params.mime_type = filters.mime_type;
+          if (filters.date_from) params.date_from = filters.date_from;
+          if (filters.date_to) params.date_to = filters.date_to;
+          if (filters.size_min) params.size_min = Number(filters.size_min) * 1024;
+          if (filters.size_max) params.size_max = Number(filters.size_max) * 1024;
+
+          const { data } = await api.get("/api/v1/search/", { params });
           setDocuments(data);
           return;
         }
@@ -53,7 +65,7 @@ export default function DocumentGrid({ onDocumentClick }: DocumentGridProps) {
       }
     }
     load();
-  }, [activeFolderId, activeCategoryId, searchQuery]);
+  }, [activeFolderId, activeCategoryId, searchQuery, filters]);
 
   function handleFolderClick(folder: Folder) {
     setActiveFolder(folder.id, folder.name);
