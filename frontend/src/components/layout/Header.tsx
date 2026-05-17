@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigationStore } from "@/store/navigationStore";
 import { api } from "@/api/axios";
+import SearchFilters from "@/components/layout/SearchFilters";
 
 interface HeaderProps {
   onUpload: () => void;
@@ -14,7 +15,19 @@ export default function Header({ onUpload }: HeaderProps) {
     viewMode, setViewMode,
     setActiveFolder,
     searchQuery, setSearchQuery,
+    filters, setFilters,
   } = useNavigationStore();
+
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const hasActiveFilters =
+    filters.mime_type !== "" ||
+    filters.date_from !== "" ||
+    filters.date_to !== "" ||
+    filters.size_min !== "" ||
+    filters.size_max !== "" ||
+    filters.sort_by !== "created_at" ||
+    filters.sort_order !== "desc";
+
 
   function handleSearchKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === "Enter") setSearchQuery(search.trim());
@@ -41,7 +54,8 @@ export default function Header({ onUpload }: HeaderProps) {
   }
 
   return (
-    <header className="h-14 bg-white border-b border-slate-200 flex items-center gap-3 px-6 shrink-0">
+    <div className="flex flex-col shrink-0">
+    <header className="h-14 bg-white border-b border-slate-200 flex items-center gap-3 px-6">
 
       {canGoBack && (
         <button
@@ -100,6 +114,28 @@ export default function Header({ onUpload }: HeaderProps) {
           )}
         </div>
 
+        {/* Фильтры */}
+        <button
+            onClick={() => setFiltersOpen((v) => !v)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm
+                border transition-all
+                ${filtersOpen || hasActiveFilters
+                ? "border-sky-400 text-sky-600 bg-sky-50"
+                : "border-slate-200 text-slate-500 hover:bg-slate-50"}`}
+            >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round"
+                d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0
+                    01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0
+                    01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25
+                    2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" />
+            </svg>
+            Фильтры
+            {hasActiveFilters && (
+                <span className="w-1.5 h-1.5 rounded-full bg-sky-500" />
+            )}
+        </button>
+
         <div className="ml-auto flex items-center gap-2">
           {/* Переключатель вида */}
           <div className="flex items-center bg-slate-100 rounded-lg p-0.5">
@@ -135,5 +171,16 @@ export default function Header({ onUpload }: HeaderProps) {
         </div>
       </div>
     </header>
+    {filtersOpen && (
+      <SearchFilters
+        filters={filters}
+        onChange={(f) => { 
+            setFilters(f); 
+            if (search.trim()) setSearchQuery(search.trim());
+            setFiltersOpen(false); }}
+        onClose={() => setFiltersOpen(false)}
+      />
+    )}
+    </div>
   );
 }
