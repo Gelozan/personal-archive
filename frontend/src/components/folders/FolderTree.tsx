@@ -6,7 +6,7 @@ import type { Folder } from "@/types";
 export default function FolderTree() {
   const [folders, setFolders] = useState<Folder[]>([]);
   const [loading, setLoading] = useState(true);
-  const { activeFolderId, setActiveFolder } = useNavigationStore();
+  const { activeFolderId, setActiveFolder, refreshTick } = useNavigationStore();
 
   // Инлайн-создание папки в корне
   const [creatingRoot, setCreatingRoot] = useState(false);
@@ -23,7 +23,7 @@ export default function FolderTree() {
     }
   }
 
-  useEffect(() => { loadFolders(); }, []);
+  useEffect(() => { loadFolders(); }, [refreshTick]);
 
   useEffect(() => {
     if (creatingRoot) createInputRef.current?.focus();

@@ -3,13 +3,26 @@ import ContextMenu, { type ContextMenuItem } from "@/components/ui/ContextMenu";
 
 interface FolderRowProps {
   name: string;
+  isDragOver?: boolean;
   onClick: () => void;
   onRename?: () => void;
+  onCreateChild?: () => void;
   onDelete?: () => void;
-  onCreateChild?: () => void; 
+  draggable?: boolean;
+  onDragStart?: (e: React.DragEvent) => void;
+  onDragEnd?: (e: React.DragEvent) => void;
+  onDragOver?: (e: React.DragEvent) => void;
+  onDragLeave?: (e: React.DragEvent) => void;
+  onDrop?: (e: React.DragEvent) => void;
+  longPressHandlers?: {
+    onTouchStart: () => void;
+    onTouchEnd: () => void;
+    onTouchMove: () => void;
+  };
 }
 
-export default function FolderRow({ name, onClick, onRename, onDelete, onCreateChild }: FolderRowProps) {
+export default function FolderCard({ name, isDragOver, onClick, onRename, onCreateChild, onDelete, 
+    draggable, onDragStart, onDragEnd, onDragOver, onDragLeave, onDrop, longPressHandlers,}: FolderRowProps) {
   const [menu, setMenu] = useState<{ x: number; y: number } | null>(null);
 
   function handleContextMenu(e: React.MouseEvent) {
@@ -43,8 +56,18 @@ export default function FolderRow({ name, onClick, onRename, onDelete, onCreateC
     <div
       onClick={onClick}
       onContextMenu={handleContextMenu}
-      className="flex items-center gap-3 pl-3 pr-12 py-3.5 rounded-lg cursor-pointer
-        hover:bg-slate-100 active:bg-slate-200 transition-all duration-100"
+      draggable={draggable}
+      onDragStart={onDragStart}
+      onDragEnd={onDragEnd}
+      onDragOver={onDragOver}
+      onDragLeave={onDragLeave}
+      onDrop={onDrop}
+      {...(longPressHandlers ?? {})}
+      className={`flex items-center gap-3 pl-3 pr-12 py-3.5 rounded-lg cursor-pointer transition-all duration-100
+      ${isDragOver
+        ? "bg-sky-50 border border-sky-300 border-dashed"
+        : "hover:bg-slate-100 active:bg-slate-200"
+      }`}
     >
       <svg className="w-5 h-5 shrink-0 text-sky-400" viewBox="0 0 24 24" fill="currentColor">
         <path d="M19.5 21a3 3 0 003-3v-4.5a3 3 0 00-3-3h-15a3 3 0 00-3 3V18a3 3 0 003 3h15z" />

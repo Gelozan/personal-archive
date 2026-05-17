@@ -5,9 +5,17 @@ import ContextMenu, { type ContextMenuItem } from "@/components/ui/ContextMenu";
 interface DocumentCardProps {
   document: Document;
   onClick: () => void;
-  onShare?: () => void;
-  onTrash?: () => void;
   onDownload?: () => void;
+  onTrash?: () => void;
+  onShare?: () => void;
+  draggable?: boolean;
+  onDragStart?: (e: React.DragEvent) => void;
+  onDragEnd?: (e: React.DragEvent) => void;
+  longPressHandlers?: {
+    onTouchStart: () => void;
+    onTouchEnd: () => void;
+    onTouchMove: () => void;
+  };
 }
 
 function FileIcon({ mimeType }: { mimeType: string }) {
@@ -60,7 +68,8 @@ function formatDate(iso: string): string {
 }
 
 
-export default function DocumentCard({ document, onClick, onShare, onTrash, onDownload }: DocumentCardProps) {
+export default function DocumentCard({ document, onClick, onShare, onTrash, onDownload, 
+    draggable, onDragStart, onDragEnd, longPressHandlers }: DocumentCardProps) {
   const [menu, setMenu] = useState<{ x: number; y: number } | null>(null);
 
   function handleContextMenu(e: React.MouseEvent) {
@@ -94,6 +103,10 @@ export default function DocumentCard({ document, onClick, onShare, onTrash, onDo
     <div
       onClick={onClick}
       onContextMenu={handleContextMenu}
+      draggable={draggable}
+      onDragStart={onDragStart}
+      onDragEnd={onDragEnd}
+      {...(longPressHandlers ?? {})}
       className="group bg-white rounded-xl border border-slate-200 p-4 cursor-pointer
         hover:border-sky-300 hover:shadow-md hover:shadow-sky-50
         transition-all duration-150 flex flex-col gap-3"

@@ -5,9 +5,17 @@ import ContextMenu, { type ContextMenuItem } from "@/components/ui/ContextMenu";
 interface DocumentRowProps {
   document: Document;
   onClick: () => void;
-  onShare?: () => void;
-  onTrash?: () => void;
   onDownload?: () => void;
+  onTrash?: () => void;
+  onShare?: () => void;
+  draggable?: boolean;
+  onDragStart?: (e: React.DragEvent) => void;
+  onDragEnd?: (e: React.DragEvent) => void;
+  longPressHandlers?: {
+    onTouchStart: () => void;
+    onTouchEnd: () => void;
+    onTouchMove: () => void;
+  };
 }
 
 function formatSize(bytes: number): string {
@@ -65,6 +73,10 @@ export default function DocumentRow({ document, onClick, onShare, onTrash, onDow
     <div
       onClick={onClick}
       onContextMenu={handleContextMenu}
+      draggable={draggable}
+      onDragStart={onDragStart}
+      onDragEnd={onDragEnd}
+      {...(longPressHandlers ?? {})}
       className="flex items-center gap-3 pl-3 pr-12 py-3.5 rounded-lg cursor-pointer
         hover:bg-slate-100 active:bg-slate-200 transition-all duration-100 group"
     >

@@ -11,11 +11,13 @@ interface NavigationState {
   viewMode: ViewMode;
   searchQuery: string;
   filters: Filters;
+  refreshTick: number;
   setActiveFolder: (id: number | null, name?: string) => void;
   setActiveCategory: (id: number | null) => void;
   setViewMode: (mode: ViewMode) => void;
   setSearchQuery: (q: string) => void;
   setFilters: (f: Filters) => void;
+  triggerRefresh: () => void;
 }
 export const useNavigationStore = create<NavigationState>()((set) => ({
   activeFolderId: null,
@@ -23,9 +25,11 @@ export const useNavigationStore = create<NavigationState>()((set) => ({
   viewMode: "grid",
   searchQuery: "",
   filters: EMPTY_FILTERS,
+  refreshTick: 0,
   setActiveFolder: (id, name) => set({ activeFolderId: id, activeFolderName: name, activeCategoryId: null, searchQuery: "", filters: EMPTY_FILTERS }),
   setActiveCategory: (id) => set({ activeCategoryId: id, activeFolderId: null, searchQuery: "", filters: EMPTY_FILTERS }),
   setViewMode: (mode) => set({ viewMode: mode }),
   setSearchQuery: (q) => set({ searchQuery: q }),
   setFilters: (f) => set({ filters: f }),
+  triggerRefresh: () => set((s) => ({ refreshTick: s.refreshTick + 1 })),
 }));
