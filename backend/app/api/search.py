@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from sqlalchemy import or_, func as sa_func
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
@@ -44,9 +44,9 @@ def search_documents(
     if mime_type is not None:
         query = query.filter(Document.mime_type == mime_type)
     if date_from is not None:
-        query = query.filter(Document.created_at >= date_from)
+        query = query.filter(Document.updated_at >= date_from)
     if date_to is not None:
-        query = query.filter(Document.created_at <= date_to)
+        query = query.filter(Document.updated_at < (date_to + timedelta(days=1)))
     if size_min is not None:
         query = query.filter(Document.file_size >= size_min)
     if size_max is not None:
