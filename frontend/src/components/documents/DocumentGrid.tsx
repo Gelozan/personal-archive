@@ -8,6 +8,7 @@ import FolderRow from "@/components/folders/FolderRow";
 import type { Document, Folder } from "@/types";
 import { EMPTY_FILTERS } from "@/components/layout/SearchFilters";
 import FolderActionModal from "@/components/ui/FolderActionModal";
+import MoveToFolderModal from "@/components/ui/MoveToFolderModal";
 import GridWrapper from "./GridWrapper";
 import type { ContextMenuItem } from "@/components/ui/ContextMenu";
 
@@ -24,6 +25,7 @@ export default function DocumentGrid({ onDocumentClick, onDocumentShare, onUploa
   const [folders, setFolders] = useState<Folder[]>([]);
   const [loading, setLoading] = useState(true);
   const [folderModal, setFolderModal] = useState<{ mode: "rename" | "create-child"; folder: Folder; } | null>(null);
+  const [moveModal, setMoveModal] = useState<{ type: "folder" | "doc"; item: Folder | Document } | null>(null);
 
   const { activeFolderId, activeCategoryId, viewMode, searchQuery, filters, setActiveFolder, refreshTick, triggerRefresh } = useNavigationStore();
 
@@ -152,6 +154,7 @@ export default function DocumentGrid({ onDocumentClick, onDocumentShare, onUploa
       isDragOver: dragOver === folder.id,
       onClick: () => setActiveFolder(folder.id, folder.name),
       onRename: () => setFolderModal({ mode: "rename", folder }),
+      onMove: () => setMoveModal({ type: "folder", item: folder }),
       onCreateChild: () => setFolderModal({ mode: "create-child", folder }),
       onDelete: () => handleFolderDelete(folder),
       draggable: true,
@@ -175,6 +178,7 @@ export default function DocumentGrid({ onDocumentClick, onDocumentShare, onUploa
       onDragStart: (e: React.DragEvent) => { e.dataTransfer.effectAllowed = "move"; setDragging({ type: "doc", id: doc.id }); },
       onDragEnd: () => { setDragging(null); setDragOver(null); },
       longPressHandlers: startLongPress(() => {}),
+      onMove: () => setMoveModal({ type: "doc", item: doc }),
     };
   }
 
@@ -277,6 +281,33 @@ export default function DocumentGrid({ onDocumentClick, onDocumentShare, onUploa
               : handleCreateChild(folderModal.folder, name)
           }
           onClose={() => setFolderModal(null)}
+        />
+      )}
+      {moveModal && (
+        <MoveToFolderModal
+          itemName={
+          moveModal.type === "folder"
+            ? (moveModal.item as Folder).name
+            : (moveModal.item as Document).original_filename
+          }
+          currentFolderId={
+          moveModal.type === "folder"
+            ? (moveModal.item as Folder).parent_id ?? null
+            : (moveModal.item as Document).folder_id ?? null
+          }
+          onClose={() => setMoveModal(null)}
+          onMove={async (folderId) => {
+          if (moveModal.type === "folder") {
+            const folder = moveModal.item as Folder;
+            if (folderId === folder.id) throw new Error("Нельзя переместить папку саму в себя");
+            await api.patch(`/api/v1/folders/${folder.id}`, { parent_id: folderId });
+          } else {
+            const doc = moveModal.item as Document;
+            await api.patch(`/api/v1/documents/${doc.id}`, { folder_id: folderId });
+          }
+          triggerRefresh();
+          await load();
+          }}
         />
       )}
     </GridWrapper>
