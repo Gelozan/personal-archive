@@ -19,8 +19,8 @@ const ALLOWED_TYPES = [
   "image/png",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
 ];
-const ALLOWED_EXT = [".pdf", ".jpg", ".jpeg", ".png", ".docx"];
-const MAX_MB = 10; // должно совпадать с MAX_FILE_SIZE_MB в .env
+const ALLOWED_EXT = [".pdf", ".jpg", ".jpeg", ".png", ".docx", ".doc"];
+const MAX_MB = 50;
 
 function formatSize(bytes: number): string {
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} КБ`;
@@ -28,7 +28,7 @@ function formatSize(bytes: number): string {
 }
 
 export default function UploadModal({ onClose, onSuccess }: UploadModalProps) {
-  const { activeFolderId } = useNavigationStore();
+  const { activeFolderId, triggerRefresh } = useNavigationStore();
 
   const [file, setFile] = useState<File | null>(null);
   const [title, setTitle] = useState("");
@@ -110,6 +110,7 @@ export default function UploadModal({ onClose, onSuccess }: UploadModalProps) {
           if (e.total) setProgress(Math.round((e.loaded / e.total) * 100));
         },
       });
+      triggerRefresh();
       onSuccess();
       onClose();
     } catch (err: any) {
