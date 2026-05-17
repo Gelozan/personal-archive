@@ -5,10 +5,12 @@ import DocumentGrid from "@/components/documents/DocumentGrid";
 import UploadModal from "@/components/documents/UploadModal";
 import DocumentViewer from "@/components/documents/DocumentViewer";
 import type { Document } from "@/types";
+import { useNavigationStore } from "@/store/navigationStore";
 
 export default function MainPage() {
   const [uploadOpen, setUploadOpen] = useState(false);
   const [selectedDoc, setSelectedDoc] = useState<Document | null>(null);
+  const { triggerRefresh } = useNavigationStore(); 
 
   function handleDocumentUpdate(updated: Document) {
     setSelectedDoc(updated);
@@ -26,6 +28,7 @@ export default function MainPage() {
           <DocumentGrid
             onDocumentClick={(doc) => setSelectedDoc(doc)}
             onDocumentShare={(doc) => { /* заглушка */ }}
+            onUpload={() => setUploadOpen(true)}
             selectedDocId={selectedDoc?.id ?? null}
             onSelectedDocTrashed={() => setSelectedDoc(null)}
           />
@@ -35,7 +38,7 @@ export default function MainPage() {
       {uploadOpen && (
         <UploadModal
           onClose={() => setUploadOpen(false)}
-          onSuccess={() => {}} 
+          onSuccess={() => { triggerRefresh(); setUploadOpen(false); }}
         />
       )}
 

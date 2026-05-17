@@ -27,10 +27,10 @@ export default function ContextMenu({ x, y, items, onClose }: ContextMenuProps) 
     function handleKey(e: KeyboardEvent) {
       if (e.key === "Escape") onClose();
     }
-    document.addEventListener("mousedown", handleClick);
+    document.addEventListener("click", handleClick);
     document.addEventListener("keydown", handleKey);
     return () => {
-      document.removeEventListener("mousedown", handleClick);
+      document.removeEventListener("click", handleClick);
       document.removeEventListener("keydown", handleKey);
     };
   }, [onClose]);
