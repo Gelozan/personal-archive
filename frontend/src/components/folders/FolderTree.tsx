@@ -6,7 +6,7 @@ import type { Folder } from "@/types";
 export default function FolderTree() {
   const [folders, setFolders] = useState<Folder[]>([]);
   const [loading, setLoading] = useState(true);
-  const { activeFolderId, setActiveFolder, refreshTick } = useNavigationStore();
+  const { activeFolderId, setActiveFolder, refreshTick, triggerRefresh } = useNavigationStore();
 
   // Инлайн-создание папки в корне
   const [creatingRoot, setCreatingRoot] = useState(false);
@@ -41,6 +41,7 @@ export default function FolderTree() {
       setNewFolderName("");
       setCreatingRoot(false);
       await loadFolders();
+      triggerRefresh();
     } catch (err: any) {
       const status = err?.response?.status;
       if (status === 409 || status === 400) {
@@ -159,6 +160,8 @@ function FolderNode({
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
+  const { triggerRefresh } = useNavigationStore();
+
   useEffect(() => { if (renaming) renameInputRef.current?.focus(); }, [renaming]);
   useEffect(() => { if (creatingChild) { setExpanded(true); childInputRef.current?.focus(); } }, [creatingChild]);
 
@@ -175,6 +178,7 @@ function FolderNode({
     try {
       await api.patch(`/api/v1/folders/${folder.id}`, { name: renameName.trim() });
       await onRefresh();
+      triggerRefresh();
     } catch (err: any) {
       if (err?.response?.status === 409) {
         setRenaming(true);
@@ -195,6 +199,7 @@ function FolderNode({
       setChildName("");
       setCreatingChild(false);
       await onRefresh();
+      triggerRefresh();
     } catch (err: any) {
         if (err?.response?.status === 409) {
           alert(`Папка с именем «${childName.trim()}» уже существует`);
@@ -213,6 +218,7 @@ function FolderNode({
       // Если удалили активную папку — переходим в корень
       if (currentActiveFolderId === folder.id) onActiveFolderDeleted();
       await onRefresh();
+      triggerRefresh();
     } finally {
       setDeleteLoading(false);
       setDeleteConfirm(false);
