@@ -108,12 +108,11 @@ def update_document(
 ):
     doc = get_document_or_404(document_id, current_user.id, db)
 
-    if data.folder_id is not None:
+    if "folder_id" in data.model_fields_set and data.folder_id is not None:
         get_folder_or_404(data.folder_id, current_user.id, db)
-    if data.category_id is not None:
+    if "category_id" in data.model_fields_set and data.category_id is not None:
         get_category_or_404(data.category_id, current_user.id, db)
 
-    # model_fields_set содержит только поля которые были переданы в запросе
     for field in data.model_fields_set:
         setattr(doc, field, getattr(data, field))
 
