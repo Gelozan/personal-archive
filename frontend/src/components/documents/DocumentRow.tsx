@@ -50,7 +50,7 @@ export default function DocumentRow({ document, onClick }: DocumentRowProps) {
 
       {/* Дата */}
       <span className="text-sm text-slate-400 w-28 text-right shrink-0">
-        {formatDate(document.created_at)}
+        {formatDate(document.updated_at)}
       </span>
     </div>
   );
