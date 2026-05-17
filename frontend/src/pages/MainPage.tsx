@@ -29,6 +29,8 @@ export default function MainPage() {
           <DocumentGrid
             key={refreshKey}
             onDocumentClick={(doc) => setSelectedDoc(doc)}
+            onDocumentShare={(doc) => { /* заглушка */ }}
+            onRefresh={() => setRefreshKey((k) => k + 1)}
           />
         </main>
       </div>
