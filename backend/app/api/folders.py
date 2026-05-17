@@ -111,15 +111,19 @@ def update_folder(
                 detail="Папка с таким названием уже существует",
             )
 
-    if data.parent_id is not None:
-        if data.parent_id == folder_id:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Folder cannot be its own parent")
-        get_folder_or_404(data.parent_id, current_user.id, db)
+    if "parent_id" in data.model_fields_set:
+        new_parent_id = data.parent_id
+        if new_parent_id == folder_id:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Folder cannot be its own parent",
+            )
+        if new_parent_id is not None:
+            get_folder_or_404(new_parent_id, current_user.id, db)
+        folder.parent_id = new_parent_id
 
     if data.name is not None:
         folder.name = data.name
-    if data.parent_id is not None:
-        folder.parent_id = data.parent_id
 
     db.commit()
     db.refresh(folder)

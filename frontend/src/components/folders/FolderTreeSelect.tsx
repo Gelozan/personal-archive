@@ -5,9 +5,10 @@ import type { Folder } from "@/types";
 interface FolderTreeSelectProps {
   value: number | null;
   onChange: (id: number | null) => void;
+  excludeId?: number;
 }
 
-export default function FolderTreeSelect({ value, onChange }: FolderTreeSelectProps) {
+export default function FolderTreeSelect({ value, onChange, excludeId }: FolderTreeSelectProps) {
   const [folders, setFolders] = useState<Folder[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
@@ -46,7 +47,7 @@ export default function FolderTreeSelect({ value, onChange }: FolderTreeSelectPr
 
   return (
     <div ref={ref} className="relative">
-      {/* Триггер — выглядит как select */}
+      {/* Триггер */}
       <button
         type="button"
         onClick={() => setOpen((p) => !p)}
@@ -86,13 +87,14 @@ export default function FolderTreeSelect({ value, onChange }: FolderTreeSelectPr
               isRoot
               onClick={() => handleSelect(null, "Корневой каталог")}
             />
-            {folders.map((folder) => (
+            {folders.filter((f) => f.id !== excludeId).map((folder) => (
               <FolderSelectNode
                 key={folder.id}
                 folder={folder}
                 depth={0}
                 selectedId={value}
                 onSelect={(id, label) => handleSelect(id, label)}
+                excludeId={excludeId}
               />
             ))}
           </div>
@@ -119,9 +121,10 @@ interface FolderSelectNodeProps {
   depth: number;
   selectedId: number | null;
   onSelect: (id: number, label: string) => void;
+  excludeId?: number;
 }
 
-function FolderSelectNode({ folder, depth, selectedId, onSelect }: FolderSelectNodeProps) {
+function FolderSelectNode({ folder, depth, selectedId, onSelect, excludeId }: FolderSelectNodeProps) {
   const containsSelected = (f: Folder, id: number | null): boolean => {
     if (f.id === id) return true;
     return f.children?.some((c) => containsSelected(c, id)) ?? false;
@@ -141,13 +144,14 @@ function FolderSelectNode({ folder, depth, selectedId, onSelect }: FolderSelectN
         onClick={() => onSelect(folder.id, folder.name)}
         onExpandToggle={() => setExpanded((p) => !p)}
       />
-      {expanded && hasChildren && folder.children!.map((child) => (
+      {expanded && hasChildren && folder.children!.filter((c) => c.id !== excludeId).map((child) => (
         <FolderSelectNode
           key={child.id}
           folder={child}
           depth={depth + 1}
           selectedId={selectedId}
           onSelect={onSelect}
+          excludeId={excludeId}
         />
       ))}
     </div>

@@ -6,6 +6,7 @@ interface FolderRowProps {
   isDragOver?: boolean;
   onClick: () => void;
   onRename?: () => void;
+  onMove?: () => void;
   onCreateChild?: () => void;
   onDelete?: () => void;
   draggable?: boolean;
@@ -21,7 +22,7 @@ interface FolderRowProps {
   };
 }
 
-export default function FolderCard({ name, isDragOver, onClick, onRename, onCreateChild, onDelete, 
+export default function FolderCard({ name, isDragOver, onClick, onRename, onMove, onCreateChild, onDelete, 
     draggable, onDragStart, onDragEnd, onDragOver, onDragLeave, onDrop, longPressHandlers,}: FolderRowProps) {
   const [menu, setMenu] = useState<{ x: number; y: number } | null>(null);
 
@@ -41,6 +42,11 @@ export default function FolderCard({ name, isDragOver, onClick, onRename, onCrea
       label: "Создать вложенную",
       icon: <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 10.5v6m3-3H9m4.06-7.19l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z" /></svg>,
       onClick: () => onCreateChild?.(),
+    },
+    {
+      label: "Переместить",
+      icon: <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" /></svg>,
+      onClick: () => onMove?.(),
     },
     {
       label: "Удалить",

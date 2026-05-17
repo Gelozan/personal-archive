@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { api } from "@/api/axios";
 import type { Document } from "@/types";
 import FolderTreeSelect from "@/components/folders/FolderTreeSelect";
+import { useNavigationStore } from "@/store/navigationStore";
 
 interface DocumentViewerProps {
   document: Document;
@@ -47,6 +48,7 @@ export default function DocumentViewer({ document, onClose, onUpdate, onTrash }:
   const [folderName, setFolderName] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const { triggerRefresh } = useNavigationStore();
 
   const [categories, setCategories] = useState<Category[]>([]);
 
@@ -104,7 +106,7 @@ export default function DocumentViewer({ document, onClose, onUpdate, onTrash }:
         category_id: categoryId === "" ? null : categoryId,
         folder_id: folderId,
       });
-      
+      triggerRefresh();
       if (data.folder_id !== null) {
         api.get(`/api/v1/folders/${data.folder_id}`)
           .then((r) => setFolderName(r.data.name));
@@ -126,6 +128,7 @@ export default function DocumentViewer({ document, onClose, onUpdate, onTrash }:
     setTrashing(true);
     try {
       await api.delete(`/api/v1/documents/${document.id}`);
+      triggerRefresh();
       onTrash(document.id);
       onClose();
     } catch {

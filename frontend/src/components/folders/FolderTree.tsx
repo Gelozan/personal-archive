@@ -2,11 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import { api } from "@/api/axios";
 import { useNavigationStore } from "@/store/navigationStore";
 import type { Folder } from "@/types";
+import MoveToFolderModal from "@/components/ui/MoveToFolderModal";
 
 export default function FolderTree() {
   const [folders, setFolders] = useState<Folder[]>([]);
   const [loading, setLoading] = useState(true);
-  const { activeFolderId, setActiveFolder, refreshTick } = useNavigationStore();
+  const { activeFolderId, setActiveFolder, refreshTick, triggerRefresh } = useNavigationStore();
 
   // Инлайн-создание папки в корне
   const [creatingRoot, setCreatingRoot] = useState(false);
@@ -41,6 +42,7 @@ export default function FolderTree() {
       setNewFolderName("");
       setCreatingRoot(false);
       await loadFolders();
+      triggerRefresh();
     } catch (err: any) {
       const status = err?.response?.status;
       if (status === 409 || status === 400) {
@@ -159,6 +161,9 @@ function FolderNode({
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
+  const { triggerRefresh } = useNavigationStore();
+  const [moveModal, setMoveModal] = useState(false);
+
   useEffect(() => { if (renaming) renameInputRef.current?.focus(); }, [renaming]);
   useEffect(() => { if (creatingChild) { setExpanded(true); childInputRef.current?.focus(); } }, [creatingChild]);
 
@@ -175,6 +180,7 @@ function FolderNode({
     try {
       await api.patch(`/api/v1/folders/${folder.id}`, { name: renameName.trim() });
       await onRefresh();
+      triggerRefresh();
     } catch (err: any) {
       if (err?.response?.status === 409) {
         setRenaming(true);
@@ -195,6 +201,7 @@ function FolderNode({
       setChildName("");
       setCreatingChild(false);
       await onRefresh();
+      triggerRefresh();
     } catch (err: any) {
         if (err?.response?.status === 409) {
           alert(`Папка с именем «${childName.trim()}» уже существует`);
@@ -213,6 +220,7 @@ function FolderNode({
       // Если удалили активную папку — переходим в корень
       if (currentActiveFolderId === folder.id) onActiveFolderDeleted();
       await onRefresh();
+      triggerRefresh();
     } finally {
       setDeleteLoading(false);
       setDeleteConfirm(false);
@@ -256,6 +264,7 @@ function FolderNode({
           onRename={() => { setRenaming(true); setRenameName(folder.name); }}
           onCreateChild={() => setCreatingChild(true)}
           onDelete={() => setDeleteConfirm(true)}
+          onMove={() => setMoveModal(true)}
         />
       )}
 
@@ -331,6 +340,19 @@ function FolderNode({
           )}
         </div>
       )}
+      {moveModal && (
+      <MoveToFolderModal
+        itemName={folder.name}
+        currentFolderId={folder.parent_id ?? null}
+        onClose={() => setMoveModal(false)}
+        onMove={async (folderId) => {
+          if (folderId === folder.id) throw new Error("Нельзя переместить папку саму в себя");
+          await api.patch(`/api/v1/folders/${folder.id}`, { parent_id: folderId });
+          triggerRefresh();
+          await onRefresh();
+        }}
+      />
+      )}
     </div>
   );
 }
@@ -347,12 +369,13 @@ interface FolderItemProps {
   onRename?: () => void;
   onCreateChild?: () => void;
   onDelete?: () => void;
+  onMove?: () => void;
 }
 
 function FolderItem({
   label, depth, isActive, isRoot = false,
   hasChildren, expanded, onClick, onExpandToggle,
-  onRename, onCreateChild, onDelete,
+  onRename, onCreateChild, onDelete, onMove,
 }: FolderItemProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -441,6 +464,18 @@ function FolderItem({
                     d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" />
                 </svg>
                 Переименовать
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); setMenuOpen(false); onMove?.(); }}
+                className="w-full flex items-center gap-2 px-3 py-1.5 text-slate-700
+                  hover:bg-slate-50 transition-all text-left"
+              >
+                <svg className="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round"
+                  d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+                </svg>
+                Переместить
               </button>
               <div className="h-px bg-slate-100 my-1" />
               <button
