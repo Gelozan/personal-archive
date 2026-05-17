@@ -8,6 +8,7 @@ interface DocumentCardProps {
   onDownload?: () => void;
   onTrash?: () => void;
   onShare?: () => void;
+  onMove?: () => void;
   draggable?: boolean;
   onDragStart?: (e: React.DragEvent) => void;
   onDragEnd?: (e: React.DragEvent) => void;
@@ -68,7 +69,7 @@ function formatDate(iso: string): string {
 }
 
 
-export default function DocumentCard({ document, onClick, onShare, onTrash, onDownload, 
+export default function DocumentCard({ document, onClick, onShare, onTrash, onDownload, onMove,
     draggable, onDragStart, onDragEnd, longPressHandlers }: DocumentCardProps) {
   const [menu, setMenu] = useState<{ x: number; y: number } | null>(null);
 
@@ -88,6 +89,11 @@ export default function DocumentCard({ document, onClick, onShare, onTrash, onDo
       label: "Поделиться",
       icon: <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" /></svg>,
       onClick: () => onShare?.(),
+    },
+    {
+      label: "Переместить",
+      icon: <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" /></svg>,
+      onClick: () => onMove?.(),
     },
     {
       label: "В корзину",
