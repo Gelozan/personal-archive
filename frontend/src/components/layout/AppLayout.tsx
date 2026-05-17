@@ -3,7 +3,7 @@ import Sidebar from "./Sidebar";
 import SidebarPanel from "./SidebarPanel";
 
 // Какая панель открыта в sidebar
-export type SidebarView = "folders" | "categories" | null;
+export type SidebarView = "folders" | "categories" | "favourites" | "recent" | null;
 
 interface AppLayoutProps {
   children: React.ReactNode;
