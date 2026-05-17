@@ -3,13 +3,26 @@ import ContextMenu, { type ContextMenuItem } from "@/components/ui/ContextMenu";
 
 interface FolderCardProps {
   name: string;
+  isDragOver?: boolean;
   onClick: () => void;
   onRename?: () => void;
-  onDelete?: () => void;
   onCreateChild?: () => void;
+  onDelete?: () => void;
+  draggable?: boolean;
+  onDragStart?: (e: React.DragEvent) => void;
+  onDragEnd?: (e: React.DragEvent) => void;
+  onDragOver?: (e: React.DragEvent) => void;
+  onDragLeave?: (e: React.DragEvent) => void;
+  onDrop?: (e: React.DragEvent) => void;
+  longPressHandlers?: {
+    onTouchStart: () => void;
+    onTouchEnd: () => void;
+    onTouchMove: () => void;
+  };
 }
 
-export default function FolderCard({ name, onClick, onRename, onDelete, onCreateChild }: FolderCardProps) {
+export default function FolderCard({ name, isDragOver, onClick, onRename, onCreateChild, onDelete, 
+    draggable, onDragStart, onDragEnd, onDragOver, onDragLeave, onDrop, longPressHandlers,}: FolderCardProps) {
   const [menu, setMenu] = useState<{ x: number; y: number } | null>(null);
 
   function handleContextMenu(e: React.MouseEvent) {
@@ -43,8 +56,18 @@ export default function FolderCard({ name, onClick, onRename, onDelete, onCreate
     <div
       onClick={onClick}
       onContextMenu={handleContextMenu}
-      className="group flex flex-col items-center gap-2 p-3 rounded-xl cursor-pointer
-        hover:bg-slate-100 active:bg-slate-200 transition-all duration-100 select-none"
+      draggable={draggable}
+      onDragStart={onDragStart}
+      onDragEnd={onDragEnd}
+      onDragOver={onDragOver}
+      onDragLeave={onDragLeave}
+      onDrop={onDrop}
+      {...(longPressHandlers ?? {})}
+      className={`group flex flex-col items-center gap-2 p-3 rounded-xl cursor-pointer transition-all duration-150 select-none
+      ${isDragOver
+        ? "bg-sky-100 border-2 border-sky-400 border-dashed scale-105"
+        : "hover:bg-slate-100 active:bg-slate-200"
+      }`}
     >
       {/* Иконка папки */}
       <div className="w-16 h-16 flex items-center justify-center">
