@@ -16,6 +16,7 @@ router = APIRouter(prefix="/search", tags=["search"])
 def search_documents(
     q: str | None = None,
     category_id: int | None = None,
+    no_category: bool = False,
     mime_type: str | None = None,
     date_from: datetime | None = None,
     date_to: datetime | None = None,
@@ -38,8 +39,9 @@ def search_documents(
             sa_func.lower(Document.original_filename).like(term),
             sa_func.lower(Document.note).like(term),
         ))
-
-    if category_id is not None:
+    if no_category:
+        query = query.filter(Document.category_id.is_(None))
+    elif category_id is not None:
         query = query.filter(Document.category_id == category_id)
     if mime_type is not None:
         query = query.filter(Document.mime_type == mime_type)
