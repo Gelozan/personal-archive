@@ -2,15 +2,17 @@ import { useState } from "react";
 import Header from "@/components/layout/Header";
 import AppLayout from "@/components/layout/AppLayout";
 import DocumentGrid from "@/components/documents/DocumentGrid";
-import UploadModal from "@/components/documents/UploadModal";
+import UploadModal from "@/components/ui/UploadModal";
 import DocumentViewer from "@/components/documents/DocumentViewer";
 import type { Document } from "@/types";
 import { useNavigationStore } from "@/store/navigationStore";
+import ShareModal from "@/components/ui/ShareModal";
 
 export default function MainPage() {
   const [uploadOpen, setUploadOpen] = useState(false);
   const [selectedDoc, setSelectedDoc] = useState<Document | null>(null);
   const { triggerRefresh } = useNavigationStore(); 
+  const [shareDoc, setShareDoc] = useState<Document | null>(null);
 
   function handleDocumentUpdate(updated: Document) {
     setSelectedDoc(updated);
@@ -27,10 +29,10 @@ export default function MainPage() {
         <main className="flex-1 overflow-y-auto p-6">
           <DocumentGrid
             onDocumentClick={(doc) => setSelectedDoc(doc)}
-            onDocumentShare={(doc) => { /* заглушка */ }}
             onUpload={() => setUploadOpen(true)}
             selectedDocId={selectedDoc?.id ?? null}
             onSelectedDocTrashed={() => setSelectedDoc(null)}
+            onDocumentShare={(doc) => setShareDoc(doc)}
           />
         </main>
       </div>
@@ -39,6 +41,13 @@ export default function MainPage() {
         <UploadModal
           onClose={() => setUploadOpen(false)}
           onSuccess={() => { triggerRefresh(); setUploadOpen(false); }}
+        />
+      )}
+
+      {shareDoc && (
+        <ShareModal
+          document={shareDoc}
+          onClose={() => setShareDoc(null)}
         />
       )}
 

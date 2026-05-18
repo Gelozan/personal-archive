@@ -17,6 +17,36 @@ from app.core.actions import ACTION_CREATE_SHARE_LINK, ACTION_REVOKE_SHARE_LINK,
 router = APIRouter(tags=["share"])
 
 
+@router.get("/documents/{document_id}/share", response_model=ShareLinkResponse)
+def get_share_link(
+    document_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    doc = db.query(Document).filter(
+        Document.id == document_id,
+        Document.owner_id == current_user.id,
+        Document.is_deleted.is_(False),
+    ).first()
+    if not doc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Document not found")
+
+    link = db.query(ShareLink).filter(
+        ShareLink.document_id == document_id,
+        ShareLink.is_active.is_(True),
+    ).first()
+
+    if not link:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No active share link")
+
+    if link.expires_at and link.expires_at < datetime.now(timezone.utc):
+        link.is_active = False
+        db.commit()
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No active share link")
+
+    return link
+
+
 @router.post("/documents/{document_id}/share", response_model=ShareLinkResponse, status_code=status.HTTP_201_CREATED)
 def create_share_link(
     document_id: int,
