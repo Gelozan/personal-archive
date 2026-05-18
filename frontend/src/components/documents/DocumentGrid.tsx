@@ -11,6 +11,7 @@ import FolderActionModal from "@/components/ui/FolderActionModal";
 import MoveToFolderModal from "@/components/ui/MoveToFolderModal";
 import GridWrapper from "./GridWrapper";
 import type { ContextMenuItem } from "@/components/ui/ContextMenu";
+import ShareModal from "@/components/ui/ShareModal";
 
 interface DocumentGridProps {
   onDocumentClick: (doc: Document) => void;
@@ -30,6 +31,7 @@ export default function DocumentGrid({ onDocumentClick, onDocumentShare, onUploa
   const { activeFolderId, activeCategoryId, activeFolderName, viewMode, searchQuery, filters, setActiveFolder, refreshTick, triggerRefresh } = useNavigationStore();
   const currentName = activeFolderName ?? "Корневая папка";
   const isSearchMode = searchQuery.trim() !== "" || JSON.stringify(filters) !== JSON.stringify(EMPTY_FILTERS);
+  const [shareDoc, setShareDoc] = useState<Document | null>(null);
 
   // Drag & drop
   const [dragging, setDragging] = useState<{ type: "doc" | "folder"; id: number } | null>(null);
@@ -174,7 +176,7 @@ export default function DocumentGrid({ onDocumentClick, onDocumentShare, onUploa
       onClick: () => onDocumentClick(doc),
       onDownload: () => handleDownload(doc),
       onTrash: () => handleDocumentTrash(doc),
-      onShare: () => onDocumentShare?.(doc),
+      onShare: () => setShareDoc(doc),
       draggable: true,
       onDragStart: (e: React.DragEvent) => { e.dataTransfer.effectAllowed = "move"; setDragging({ type: "doc", id: doc.id }); },
       onDragEnd: () => { setDragging(null); setDragOver(null); },
@@ -309,6 +311,13 @@ export default function DocumentGrid({ onDocumentClick, onDocumentShare, onUploa
           triggerRefresh();
           await load();
           }}
+        />
+      )}
+
+      {shareDoc && (
+        <ShareModal
+          document={shareDoc}
+          onClose={() => setShareDoc(null)}
         />
       )}
     </GridWrapper>
