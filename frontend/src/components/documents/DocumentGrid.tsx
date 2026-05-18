@@ -209,7 +209,7 @@ export default function DocumentGrid({ onDocumentClick, onDocumentShare, onUploa
   // Скелетон
   if (loading) {
     if (viewMode === "grid") return (
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+      <div className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 md:gap-4">
         {Array.from({ length: 10 }).map((_, i) => (
           <div key={i} className="flex flex-col items-center gap-2 p-3">
             <div className="w-16 h-16 rounded-xl bg-slate-100 animate-pulse" />
@@ -260,7 +260,7 @@ export default function DocumentGrid({ onDocumentClick, onDocumentShare, onUploa
   return (
     <GridWrapper onDrop={handleGridDrop} bgMenuItems={bgMenuItems}>
       {viewMode === "grid" ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+        <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 md:gap-4">
           {folders.map((f) => <FolderCard key={`folder-${f.id}`} {...folderCardProps(f)} />)}
           {documents.map((doc) => <DocumentCard key={`doc-${doc.id}`} {...docCardProps(doc)} />)}
         </div>

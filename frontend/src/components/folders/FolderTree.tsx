@@ -333,7 +333,7 @@ function FolderNode({
                 disabled={childLoading}
                 maxLength={255}
                 placeholder="Название папки"
-                className="flex-1 text-xs bg-white border border-sky-400 rounded px-1.5 py-0.5
+                className="flex-1 text-sm bg-white border border-sky-400 rounded px-1.5 py-0.5
                   outline-none focus:ring-2 focus:ring-sky-100 min-w-0 mr-2"
               />
             </div>
@@ -422,7 +422,7 @@ function FolderItem({
         )}
       </svg>
 
-      <span className="truncate text-xs flex-1">{label}</span>
+      <span className="truncate text-sm flex-1">{label}</span>
 
       {/* Кнопка «…» — только для не-root папок, появляется при hover */}
       {!isRoot && (
