@@ -27,7 +27,12 @@ export const useNavigationStore = create<NavigationState>()((set) => ({
   filters: EMPTY_FILTERS,
   refreshTick: 0,
   setActiveFolder: (id, name) => set({ activeFolderId: id, activeFolderName: name, activeCategoryId: null, searchQuery: "", filters: EMPTY_FILTERS }),
-  setActiveCategory: (id) => set({ activeCategoryId: id, activeFolderId: null, searchQuery: "", filters: EMPTY_FILTERS }),
+  setActiveCategory: (id) => set({ activeCategoryId: id, activeFolderId: null, searchQuery: "", 
+    filters: {
+      ...EMPTY_FILTERS,
+      category_id: id === null ? "" : id === -1 ? "none" : String(id),
+    },
+  }),
   setViewMode: (mode) => set({ viewMode: mode }),
   setSearchQuery: (q) => set({ searchQuery: q }),
   setFilters: (f) => set({ filters: f }),

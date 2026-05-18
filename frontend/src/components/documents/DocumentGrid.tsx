@@ -43,11 +43,16 @@ export default function DocumentGrid({ onDocumentClick, onDocumentShare, onUploa
     try {
       if (isSearchMode) {
         setFolders([]);
-        const params: Record<string, string | number> = {
+        const params: Record<string, string | number | boolean> = {
           sort_by: filters.sort_by,
           sort_order: filters.sort_order,
         };
         if (searchQuery.trim()) params.q = searchQuery.trim();
+        if (filters.category_id === "none") {
+          params.no_category = true;
+        } else if (filters.category_id) {
+          params.category_id = Number(filters.category_id);
+        }        
         if (filters.mime_type) params.mime_type = filters.mime_type;
         if (filters.date_from) params.date_from = filters.date_from;
         if (filters.date_to) params.date_to = filters.date_to;
