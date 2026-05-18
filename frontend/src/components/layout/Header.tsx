@@ -20,6 +20,7 @@ export default function Header({ onUpload }: HeaderProps) {
 
   const [filtersOpen, setFiltersOpen] = useState(false);
   const hasActiveFilters =
+    filters.category_id !== "" ||
     filters.mime_type !== "" ||
     filters.date_from !== "" ||
     filters.date_to !== "" ||

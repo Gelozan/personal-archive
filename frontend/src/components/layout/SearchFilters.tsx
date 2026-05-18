@@ -1,6 +1,9 @@
-import { useState } from "react";
+import { api } from "@/api/axios";
+import type { Category } from "@/types";
+import { useEffect, useState } from "react";
 
 export interface Filters {
+  category_id: string;
   mime_type: string;
   date_from: string;
   date_to: string;
@@ -11,6 +14,7 @@ export interface Filters {
 }
 
 export const EMPTY_FILTERS: Filters = {
+  category_id: "",
   mime_type: "",
   date_from: "",
   date_to: "",
@@ -28,6 +32,13 @@ interface SearchFiltersProps {
 
 export default function SearchFilters({ filters, onChange, onClose }: SearchFiltersProps) {
   const [local, setLocal] = useState<Filters>(filters);
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  useEffect(() => {
+    api.get("/api/v1/categories/").then(({ data }) => setCategories(data));
+  }, []);
+
+  useEffect(() => { setLocal(filters); }, [filters]);
 
   function set(key: keyof Filters, value: string) {
     setLocal((prev) => ({ ...prev, [key]: value }));
@@ -46,6 +57,22 @@ export default function SearchFilters({ filters, onChange, onClose }: SearchFilt
 
   return (
     <div className="bg-white border-b border-slate-200 px-6 py-4 flex flex-wrap gap-4 items-end">
+      {/* Категория */}
+      <div className="flex flex-col gap-1 min-w-36">
+        <label className="text-xs font-medium text-slate-500">Категория</label>
+        <select
+          value={local.category_id}
+          onChange={(e) => set("category_id", e.target.value)}
+          className="px-3 py-1.5 text-sm rounded-lg border border-slate-200
+            bg-white focus:outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-100 transition-all"
+        >
+          <option value="">Все</option>
+          <option value="none">—Без категории—</option>
+          {categories.map((c) => (
+            <option key={c.id} value={String(c.id)}>{c.name}</option>
+          ))}
+        </select>
+      </div>
 
       {/* Тип файла */}
       <div className="flex flex-col gap-1 min-w-32">
