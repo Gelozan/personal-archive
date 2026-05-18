@@ -9,6 +9,7 @@ interface HeaderProps {
 
 export default function Header({ onUpload }: HeaderProps) {
   const [search, setSearch] = useState("");
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
 
   const {
     activeFolderId, activeFolderName,
@@ -56,7 +57,7 @@ export default function Header({ onUpload }: HeaderProps) {
 
   return (
     <div className="flex flex-col shrink-0">
-    <header className="h-14 bg-white border-b border-slate-200 flex items-center gap-3 px-6">
+    <header className="h-14 bg-white border-b border-slate-200 flex items-center gap-2 px-3 md:px-6">
 
       {canGoBack && (
         <button
@@ -72,7 +73,7 @@ export default function Header({ onUpload }: HeaderProps) {
       )}
 
       {/* Название текущей папки*/}
-      <h1 className="text-sm font-semibold text-slate-800 shrink-0">{currentName}</h1>
+      <h1 className="text-2xl md:text-3xl font-semibold text-slate-800 truncate max-w-[200px] md:max-w-none">{currentName}</h1>
 
       {/* Бейдж активного поиска */}
       {searchQuery && (
@@ -83,7 +84,7 @@ export default function Header({ onUpload }: HeaderProps) {
 
       <div className="w-px h-4 bg-slate-200 shrink-0" />
 
-      <div className="h-14 flex items-center gap-4 flex-1">
+      <div className="hidden md:flex items-center gap-4 flex-1">
 
         {/* Поиск */}
         <div className="flex-1 max-w-md relative">
@@ -171,7 +172,67 @@ export default function Header({ onUpload }: HeaderProps) {
           </button>
         </div>
       </div>
+
+      <div className="flex md:hidden items-center gap-2 ml-auto">
+      <button
+          onClick={() => setMobileSearchOpen((v) => !v)}
+          className={`w-8 h-8 flex items-center justify-center rounded-lg transition-all
+          ${mobileSearchOpen ? "bg-sky-50 text-sky-500" : "text-slate-400 hover:bg-slate-100"}`}
+      >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round"
+              d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 15.803 7.5 7.5 0 0016.803 15.803z" />
+          </svg>
+      </button>
+      <button
+          onClick={onUpload}
+          className="w-8 h-8 flex items-center justify-center rounded-lg bg-sky-500
+          text-white hover:bg-sky-600 active:bg-sky-700 transition-all shadow-sm shadow-sky-200"
+      >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round"
+              d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+          </svg>
+      </button>
+      </div>
     </header>
+    {mobileSearchOpen && (
+    <div className="md:hidden px-3 py-2 bg-white border-b border-slate-100 flex gap-2">
+        <div className="relative flex-1">
+        <svg className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
+            fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round"
+            d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 15.803 7.5 7.5 0 0016.803 15.803z" />
+        </svg>
+        <input
+            type="text"
+            placeholder="Поиск... (Enter)"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={handleSearchKeyDown}
+            autoFocus
+            className="w-full pl-9 pr-4 py-2 text-sm rounded-lg border border-slate-200
+            bg-slate-50 placeholder:text-slate-400 focus:outline-none focus:border-sky-400
+            focus:ring-2 focus:ring-sky-100 transition-all"
+        />
+        </div>
+        <button
+        onClick={() => setFiltersOpen((v) => !v)}
+        className={`px-3 py-2 rounded-lg text-sm border transition-all
+            ${filtersOpen || hasActiveFilters
+            ? "border-sky-400 text-sky-600 bg-sky-50"
+            : "border-slate-200 text-slate-500"}`}
+        >
+        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round"
+            d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0
+                01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0
+                01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25
+                2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" />
+        </svg>
+        </button>
+    </div>
+    )}
     {filtersOpen && (
       <SearchFilters
         filters={filters}

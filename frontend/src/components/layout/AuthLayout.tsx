@@ -14,7 +14,7 @@ export function AuthLayout({ title, children }: { title: string; children: React
 
         {/* Карточка */}
         <div className="bg-white rounded-2xl shadow-xl shadow-slate-200/60 border border-slate-100 p-8">
-          <h1 className="text-xl font-bold text-slate-900 text-center mb-6">{title}</h1>
+          <h1 className="text-3xl font-bold text-slate-900 text-center mb-6">{title}</h1>
           {children}
         </div>
       </div>

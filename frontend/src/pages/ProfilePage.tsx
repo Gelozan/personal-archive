@@ -94,14 +94,14 @@ export default function ProfilePage() {
             <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
           </svg>
         </button>
-        <h1 className="text-sm font-semibold text-slate-800">Профиль</h1>
+        <h1 className="text-3xl font-semibold text-slate-800">Профиль</h1>
       </header>
 
       <main className="flex-1 p-6 max-w-lg mx-auto w-full space-y-4">
 
         {/* Данные профиля */}
         <div className="bg-white rounded-xl border border-slate-100 p-6 space-y-4">
-          <h2 className="text-sm font-semibold text-slate-700">Данные аккаунта</h2>
+          <h2 className="text-base font-semibold text-slate-700">Данные аккаунта</h2>
 
           {loading ? (
             <div className="space-y-3">
@@ -170,7 +170,7 @@ export default function ProfilePage() {
 
         {/* Смена пароля */}
         <div className="bg-white rounded-xl border border-slate-100 p-6">
-          <h2 className="text-sm font-semibold text-slate-700 mb-4">Смена пароля</h2>
+          <h2 className="text-base font-semibold text-slate-700 mb-4">Смена пароля</h2>
           <form onSubmit={handleChangePassword} className="space-y-3">
             <div className="space-y-1">
               <label className="text-xs font-medium text-slate-500">Текущий пароль</label>

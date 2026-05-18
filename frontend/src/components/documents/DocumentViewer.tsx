@@ -170,7 +170,7 @@ export default function DocumentViewer({ document, onClose, onUpdate, onTrash }:
               {getMimeLabel(document.mime_type)}
             </span>
             {!editing ? (
-              <h2 className="text-sm font-semibold text-slate-800 truncate">{title}</h2>
+              <h2 className="text-xl font-semibold text-slate-800 truncate">{title}</h2>
             ) : (
               <input
                 autoFocus

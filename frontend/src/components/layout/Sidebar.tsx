@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 
 interface SidebarProps {
   activeView: SidebarView;
+  mobileBar?: boolean;
   onToggle: (view: SidebarView) => void;
 }
 
@@ -12,7 +13,7 @@ interface NavItem {
   icon: React.ReactNode;
 }
 
-export default function Sidebar({ activeView, onToggle }: SidebarProps) {
+export default function Sidebar({ activeView, onToggle, mobileBar }: SidebarProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const isTrash = location.pathname === "/trash";
@@ -60,6 +61,40 @@ export default function Sidebar({ activeView, onToggle }: SidebarProps) {
       ),
     },
   ];
+
+  if (mobileBar) {
+  return (
+    <div className="flex items-center justify-around px-4 py-2 safe-area-bottom">
+      {/* Логотип убираем, только nav-кнопки */}
+      {navItems.map((item) => (
+        <button
+          key={item.view}
+          onClick={() => onToggle(item.view)}
+          title={item.label}
+          className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all
+            ${activeView === item.view
+              ? "text-sky-600"
+              : "text-slate-400"}`}
+        >
+          {item.icon}
+          <span className="text-[10px] font-medium">{item.label}</span>
+        </button>
+      ))}
+      {/* Заглушки */}
+      {WOP.map((item) => (
+        <button
+          key={item.view}
+          onClick={() => alert("В разработке")}
+          title={item.label}
+          className="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl text-slate-300"
+        >
+          {item.icon}
+          <span className="text-[10px] font-medium">{item.label}</span>
+        </button>
+      ))}
+    </div>
+  );
+  }
 
   return (
     <div className="flex flex-col items-center w-14 bg-white border-r border-slate-200 py-4 gap-1 shrink-0">
