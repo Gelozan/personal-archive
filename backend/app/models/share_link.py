@@ -18,4 +18,4 @@ class ShareLink(Base):
     expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
-    document: Mapped["Document"] = relationship("Document", back_populates="share_links")
+    document: Mapped["Document"] = relationship("Document", back_populates="share_links") # noqa: F821

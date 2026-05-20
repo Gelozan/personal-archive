@@ -7,7 +7,6 @@ export const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-  console.log(import.meta.env.VITE_API_URL);
   const token = useAuthStore.getState().accessToken;
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;

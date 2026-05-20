@@ -14,7 +14,7 @@ class User(Base):
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
-    documents: Mapped[list["Document"]] = relationship("Document", back_populates="owner", cascade="all, delete-orphan")
+    documents: Mapped[list["Document"]] = relationship("Document", back_populates="owner", cascade="all, delete-orphan") # noqa: F821
     folders: Mapped[list["Folder"]] = relationship("Folder", back_populates="owner", cascade="all, delete-orphan")
-    categories: Mapped[list["Category"]] = relationship("Category", back_populates="owner", cascade="all, delete-orphan")
-    user_categories: Mapped[list["UserCategory"]] = relationship("UserCategory", back_populates="user", cascade="all, delete-orphan")
+    categories: Mapped[list["Category"]] = relationship("Category", back_populates="owner", cascade="all, delete-orphan") # noqa: F821
+    user_categories: Mapped[list["UserCategory"]] = relationship("UserCategory", back_populates="user", cascade="all, delete-orphan") # noqa: F821
