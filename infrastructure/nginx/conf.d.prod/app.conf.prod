@@ -1,6 +1,6 @@
 server {
     listen 80;
-    server_name your-domain.com;
+    server_name personal-archive.ru;
 
     # ACME-challenge для Let's Encrypt
     location /.well-known/acme-challenge/ {

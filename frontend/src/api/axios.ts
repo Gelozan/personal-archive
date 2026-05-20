@@ -2,11 +2,12 @@ import axios from "axios";
 import { useAuthStore } from "@/store/authStore";
 
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL ?? "http://localhost:8000",
+  baseURL: import.meta.env.VITE_API_URL,
   headers: { "Content-Type": "application/json" },
 });
 
 api.interceptors.request.use((config) => {
+  console.log(import.meta.env.VITE_API_URL);
   const token = useAuthStore.getState().accessToken;
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
@@ -30,7 +31,7 @@ api.interceptors.response.use(
       return new Promise((resolve) => {
         queue.push((token) => {
           original.headers.Authorization = `Bearer ${token}`;
-          resolve(api(original));
+          resolve(axios(original));
         });
       });
     }
@@ -39,17 +40,18 @@ api.interceptors.response.use(
 
     try {
       const refreshToken = useAuthStore.getState().refreshToken;
-      const { data } = await axios.post(
-        `${import.meta.env.VITE_API_URL ?? "http://localhost:8000"}/api/v1/auth/refresh`,
-        { refresh_token: refreshToken }
-      );
+ const baseUrl = import.meta.env.VITE_API_URL;
+const { data } = await axios.post(
+  `${baseUrl}/api/v1/auth/refresh`, // Убрали лишний дубль /api/v1, если он уже есть в baseUrl
+  { refresh_token: refreshToken }
+);
 
       useAuthStore.getState().setAuth(data.access_token, data.refresh_token);
       queue.forEach((cb) => cb(data.access_token));
       queue = [];
 
       original.headers.Authorization = `Bearer ${data.access_token}`;
-      return api(original);
+      return axios(original);
     } catch {
       useAuthStore.getState().clearAuth();
       window.location.href = "/login";
