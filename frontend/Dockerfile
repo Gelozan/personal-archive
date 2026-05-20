@@ -21,7 +21,7 @@ FROM nginx:1.27-alpine AS runner
 RUN rm /etc/nginx/conf.d/default.conf
 
 # Копируем собранный dist из стадии builder
-COPY --from=builder /app/dist /usr/share/nginx/html
+COPY --from=builder /frontend/dist /usr/share/nginx/html
 
 # Конфиг nginx для SPA (все маршруты → index.html)
 COPY nginx-spa.conf /etc/nginx/conf.d/default.conf

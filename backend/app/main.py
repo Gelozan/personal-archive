@@ -16,7 +16,10 @@ from app.api.users import router as users_router
 
 from prometheus_fastapi_instrumentator import Instrumentator
 
-app = FastAPI(title=settings.app_name, debug=settings.debug)
+app = FastAPI(title=settings.app_name, debug=settings.debug, redoc_url="/redoc")
+@app.get("/api/v1/health")
+def health_check_test():
+    return {"status": "ok"}
 
 app.add_middleware(
     CORSMiddleware,
@@ -41,7 +44,7 @@ def root():
     return {"message": "Personal Archive API"}
 
 
-@app.get("/health")
+@app.get("/api/v1/health")
 def health():
     return {"status": "ok"}
 
