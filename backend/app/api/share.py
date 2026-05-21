@@ -39,7 +39,7 @@ def get_share_link(
     if not link:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No active share link")
 
-    if link.expires_at and link.expires_at < datetime.now(timezone.utc):
+    if link.expires_at and link.expires_at < datetime.now(timezone.utc).replace(tzinfo=None):
         link.is_active = False
         db.commit()
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No active share link")
@@ -118,7 +118,7 @@ def access_shared_document(
     if not link:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Link not found or revoked")
 
-    if link.expires_at and link.expires_at < datetime.now(timezone.utc):
+    if link.expires_at and link.expires_at < datetime.now(timezone.utc).replace(tzinfo=None):
         db.delete(link)
         db.commit()
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Link not found or expired")
