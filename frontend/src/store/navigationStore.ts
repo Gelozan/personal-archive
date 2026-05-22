@@ -1,6 +1,6 @@
 import { create } from "zustand";
-import type { Filters } from "@/components/layout/SearchFilters";
-import { EMPTY_FILTERS } from "@/components/layout/SearchFilters";
+import type { Filters } from "@/types/index.ts";
+import { EMPTY_FILTERS } from "@/types/index.ts";
 
 export type ViewMode = "grid" | "list"
 
