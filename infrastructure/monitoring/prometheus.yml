@@ -18,3 +18,7 @@ scrape_configs:
   - job_name: "prometheus"
     static_configs:
       - targets: ["localhost:9090"]
+
+# Путь к файлам с правилами алертов
+rule_files:
+  - /etc/prometheus/alerts/*.yml
