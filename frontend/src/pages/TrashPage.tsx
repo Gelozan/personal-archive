@@ -45,7 +45,6 @@ export default function TrashPage() {
     }
   }
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { load(); }, []);
 
   function toggleSelect(id: number) {
@@ -331,6 +330,7 @@ function TrashRow({ doc, selected, onToggle, onRestore, onDelete, disabled }: Tr
         <span className="text-xs text-slate-400 w-44 shrink-0 hidden md:block">
           {doc.deleted_at ? formatDate(doc.deleted_at) : "—"}
         </span>
+        
 
         {/* Действия */}
         <div className="flex items-center gap-1 w-16 justify-end shrink-0">

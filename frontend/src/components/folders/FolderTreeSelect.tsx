@@ -26,7 +26,7 @@ export default function FolderTreeSelect({ value, onChange, excludeId }: FolderT
         }
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [value]);
 
   // Закрытие по клику вне компонента
   useEffect(() => {
