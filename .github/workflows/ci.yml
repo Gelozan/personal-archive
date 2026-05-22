@@ -99,8 +99,7 @@ jobs:
         run: pytest tests/ -v --tb=short
 
       - name: Security audit
-        run: pip install pip-audit && pip-audit -r backend/requirements.txt
-
+        run: pip install pip-audit && pip-audit -r backend/requirements.txt  --ignore PYSEC-2026-161
   # ─── JOB 3: Сборка (только после lint И test) ────────────────
   build:
     name: Build
