@@ -9,6 +9,8 @@ interface SidebarPanelProps {
 const titles: Record<NonNullable<SidebarView>, string> = {
   folders: "Папки",
   categories: "Категории",
+  favourites: "",
+  recent: ""
 };
 
 export default function SidebarPanel({ view }: SidebarPanelProps) {

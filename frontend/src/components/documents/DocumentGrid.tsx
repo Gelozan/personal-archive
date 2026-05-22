@@ -6,7 +6,7 @@ import DocumentRow from "./DocumentRow";
 import FolderCard from "@/components/folders/FolderCard";
 import FolderRow from "@/components/folders/FolderRow";
 import type { Document, Folder } from "@/types";
-import { EMPTY_FILTERS } from "@/components/layout/SearchFilters";
+import { EMPTY_FILTERS } from "@/types/index.ts";
 import FolderActionModal from "@/components/ui/FolderActionModal";
 import MoveToFolderModal from "@/components/ui/MoveToFolderModal";
 import GridWrapper from "./GridWrapper";
@@ -21,7 +21,7 @@ interface DocumentGridProps {
   onSelectedDocTrashed: () => void;
 }
 
-export default function DocumentGrid({ onDocumentClick, onDocumentShare, onUpload, selectedDocId, onSelectedDocTrashed }: DocumentGridProps) {
+export default function DocumentGrid({ onDocumentClick, onUpload, selectedDocId, onSelectedDocTrashed }: DocumentGridProps) {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [folders, setFolders] = useState<Folder[]>([]);
   const [loading, setLoading] = useState(true);
@@ -80,7 +80,11 @@ export default function DocumentGrid({ onDocumentClick, onDocumentShare, onUploa
     }
   }, [activeFolderId, activeCategoryId, searchQuery, filters, isSearchMode]);
 
-  useEffect(() => { load(); }, [load, refreshTick]);
+  useEffect(() => {
+    void (async () => {
+      await load();
+    })();
+  }, [load, refreshTick]);
 
   async function handleDownload(doc: Document) {
     try {

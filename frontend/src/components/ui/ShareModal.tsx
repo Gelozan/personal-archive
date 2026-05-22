@@ -99,9 +99,9 @@ export default function ShareModal({ document, onClose }: ShareModalProps) {
   }
 
   // Минимальная дата для datepicker — сегодня + 1 час (через 1 час)
-  const minDateTime = new Date(Date.now() + 60 * 60 * 1000)
-    .toISOString()
-    .slice(0, 16);
+  const minDateTime = useState(() =>
+    new Date(Date.now() + 60 * 60 * 1000).toISOString().slice(0, 16)
+  );
 
   return (
     <div
@@ -179,7 +179,7 @@ export default function ShareModal({ document, onClose }: ShareModalProps) {
                 {expiryMode === "date" && (
                   <input
                     type="datetime-local"
-                    min={minDateTime}
+                    min={minDateTime[0]}
                     value={expiryDate}
                     onChange={(e) => setExpiryDate(e.target.value)}
                     className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm text-slate-900 outline-none focus:border-sky-400 focus:ring-3 focus:ring-sky-100 transition-all"

@@ -18,10 +18,6 @@ export default function MainPage() {
     setSelectedDoc(updated);
   }
 
-  function handleDocumentTrashed() {
-    setSelectedDoc(null);
-  }
-
   return (
     <AppLayout>
       <div className="flex flex-col flex-1 min-w-0">
@@ -56,7 +52,7 @@ export default function MainPage() {
           document={selectedDoc}
           onClose={() => setSelectedDoc(null)}
           onUpdate={handleDocumentUpdate}
-          onTrash={(id) => {
+          onTrash={() => {
             setSelectedDoc(null);
           }}
         />

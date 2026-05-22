@@ -14,6 +14,7 @@ class DocumentResponse(BaseModel):
     is_deleted: bool
     created_at: datetime
     updated_at: datetime
+    deleted_at: datetime | None
 
     model_config = {"from_attributes": True}
 
