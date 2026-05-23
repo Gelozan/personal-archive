@@ -1,4 +1,5 @@
 import smtplib
+import ssl
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from app.core.config import settings
@@ -45,9 +46,7 @@ def send_password_reset_email(to_email: str, token: str) -> None:
 
     message.attach(MIMEText(text_body, "plain"))
     message.attach(MIMEText(html_body, "html"))
-
-    with smtplib.SMTP(settings.smtp_host, settings.smtp_port) as server:
-        server.ehlo()
-        server.starttls()
+    context = ssl.create_default_context()
+    with smtplib.SMTP_SSL(settings.smtp_host, settings.smtp_port, context=context) as server:
         server.login(settings.smtp_user, settings.smtp_password)
         server.sendmail(settings.smtp_from, to_email, message.as_string())  

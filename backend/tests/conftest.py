@@ -2,7 +2,6 @@ import os
 import pytest
 from unittest.mock import patch, MagicMock
 
-# Патчим boto3 ДО импорта приложения — иначе s3_client упадёт без реальных ключей
 patch("boto3.client", return_value=MagicMock()).start()
 
 os.environ.setdefault("APP_NAME", "personal-archive-test")
