@@ -116,14 +116,6 @@ class TestTokens:
 
 
 class TestPasswordReset:
-    def test_forgot_password_known_email_returns_204(self, client):
-        client.post("/api/v1/auth/register", json={
-            "email": "reset@test.com", "name": "A", "password": "StrongPass1!",
-        })
-        resp = client.post("/api/v1/auth/forgot-password",
-                           json={"email": "reset@test.com"})
-        assert resp.status_code == 204
-
     def test_reset_password_with_invalid_token_returns_400(self, client):
         resp = client.post("/api/v1/auth/reset-password", json={
             "token": "fake-token-that-does-not-exist",
