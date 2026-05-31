@@ -7,36 +7,47 @@ services:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - pa_network
-    restart: always
+    restart: unless-stopped
+    # Локально: открываем порт для доступа из IDE/DBeaver
+    ports:
+      - "127.0.0.1:5432:5432"
 
   backend:
     build: ./backend
     container_name: pa_backend
     env_file: ./backend/.env
-    command: sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4"
+    command: >
+      sh -c "alembic upgrade head &&
+             uvicorn app.main:app --host 0.0.0.0 --port 8000
+             ${UVICORN_EXTRA_ARGS:---workers 4}"
     networks:
       - pa_network
-    restart: always
+    restart: unless-stopped
     depends_on:
       - postgres
+    # Локально: открываем порт для прямого доступа к API / Swagger
+    ports:
+      - "127.0.0.1:8000:8000"
 
   frontend:
     build: ./frontend
     container_name: pa_frontend
     networks:
       - pa_network
-    restart: always
+    restart: unless-stopped
     depends_on:
       - backend
 
+  # --- PRODUCTION Nginx (с SSL) ---
   nginx:
+    profiles: ["prod"]
     image: nginx:1.27-alpine
     container_name: pa_nginx
     ports:
       - "80:80"
       - "443:443"
     volumes:
-      - ./infrastructure/nginx/conf.d.local/app.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./infrastructure/nginx/conf.d/app.conf:/etc/nginx/conf.d/default.conf:ro
       - ./infrastructure/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - /etc/letsencrypt:/etc/letsencrypt:ro
     depends_on:
@@ -44,35 +55,53 @@ services:
       - frontend
     networks:
       - pa_network
-    restart: always
+    restart: unless-stopped
+
+  # --- LOCAL Nginx (без SSL, HTTP только) ---
+  nginx-local:
+    profiles: ["local"]
+    image: nginx:1.27-alpine
+    container_name: pa_nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./infrastructure/nginx/conf.d/app.local.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./infrastructure/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - pa_network
 
   prometheus:
     image: prom/prometheus:latest
     container_name: pa_prometheus
+    ports:
+      - "127.0.0.1:9090:9090"
     volumes:
       - ./infrastructure/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - ./infrastructure/monitoriтng/alerts:/etc/prometheus/alerts:ro
+      - ./infrastructure/monitoring/alerts:/etc/prometheus/alerts:ro
       - prometheus_data:/prometheus
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
       - "--storage.tsdb.retention.time=15d"
     networks:
       - pa_network
-    restart: always
-      - "127.0.0.1:9090:9090"
+    restart: unless-stopped
 
   grafana:
     image: grafana/grafana:latest
     container_name: pa_grafana
     env_file: ./infrastructure/env/monitoring.env
+    ports:
+      - "127.0.0.1:3000:3000"
     volumes:
       - grafana_data:/var/lib/grafana
       - ./infrastructure/monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
     networks:
       - pa_network
-    restart: always
-    ports:
-      - "127.0.0.1:3000:3000"
+    restart: unless-stopped
+
   node-exporter:
     image: prom/node-exporter:latest
     container_name: pa_node_exporter
@@ -87,7 +116,7 @@ services:
       - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
     networks:
       - pa_network
-    restart: always
+    restart: unless-stopped
 
   postgres-exporter:
     image: prometheuscommunity/postgres-exporter:latest
@@ -95,7 +124,7 @@ services:
     env_file: ./infrastructure/env/postgres-exporter.env
     networks:
       - pa_network
-    restart: always
+    restart: unless-stopped
     depends_on:
       - postgres
 
@@ -107,4 +136,3 @@ volumes:
 networks:
   pa_network:
     driver: bridge
-
