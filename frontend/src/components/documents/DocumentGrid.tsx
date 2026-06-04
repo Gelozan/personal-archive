@@ -126,7 +126,7 @@ export default function DocumentGrid({ onDocumentClick, onUpload, selectedDocId,
   }
 
   async function handleCreateChild(parentFolder: Folder, name: string) {
-    await api.post("/api/v1/folders/", { name, parent_id: parentFolder.id });
+    await api.post("/api/v1/folders/", { name, parent_id: parentFolder.id ?? null });
     triggerRefresh();
     if (activeFolderId === parentFolder.id) await load();
   }
@@ -205,7 +205,7 @@ export default function DocumentGrid({ onDocumentClick, onUpload, selectedDocId,
       icon: <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 10.5v6m3-3H9m4.06-7.19l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z" /></svg>,
       onClick: () => setFolderModal({
         mode: "create-child",
-        folder: { id: activeFolderId ?? -1, name: currentName } as Folder,
+        folder: { id: activeFolderId ?? null, name: currentName } as Folder,
       }),
     },
   ];
@@ -256,6 +256,19 @@ export default function DocumentGrid({ onDocumentClick, onUpload, selectedDocId,
             <p className="text-sm font-medium text-slate-600">Папка пуста</p>
             <p className="text-xs text-slate-400 mt-1">Загрузите документ или создайте папку</p>
           </div>
+        )}
+        {folderModal && (
+          <FolderActionModal
+            mode={folderModal.mode}
+            initialName={folderModal.mode === "rename" ? folderModal.folder.name : ""}
+            parentName={folderModal.folder.name}
+            onConfirm={(name) =>
+              folderModal.mode === "rename"
+                ? handleFolderRename(folderModal.folder, name)
+                : handleCreateChild(folderModal.folder, name)
+            }
+            onClose={() => setFolderModal(null)}
+          />
         )}
       </GridWrapper>
     );
