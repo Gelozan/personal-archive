@@ -16,10 +16,8 @@ export default function GridWrapper({ children, onDrop, bgMenuItems }: GridWrapp
     <div
       className="min-h-full"
       onContextMenu={(e) => {
-        if (e.target === e.currentTarget) {
-          e.preventDefault();
-          setBgMenu({ x: e.clientX, y: e.clientY });
-        }
+        e.preventDefault();
+        setBgMenu({ x: e.clientX, y: e.clientY });
       }}
       onDragOver={(e) => e.preventDefault()}
       onDrop={onDrop}
