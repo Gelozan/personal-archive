@@ -2,6 +2,7 @@ import { api } from "@/api/axios";
 import type { Category } from "@/types";
 import { useEffect, useState } from "react";
 import { EMPTY_FILTERS, type Filters } from "@/types/index.ts";
+import { useNavigationStore } from "@/store/navigationStore";
 
 interface SearchFiltersProps {
   filters: Filters;
@@ -12,6 +13,7 @@ interface SearchFiltersProps {
 export default function SearchFilters({ filters, onChange, onClose }: SearchFiltersProps) {
   const [local, setLocal] = useState<Filters>(filters);
   const [categories, setCategories] = useState<Category[]>([]);
+  const { setActiveFolder } = useNavigationStore();
 
   useEffect(() => {
     api.get("/api/v1/categories/").then(({ data }) => setCategories(data));
@@ -31,6 +33,7 @@ export default function SearchFilters({ filters, onChange, onClose }: SearchFilt
   function handleReset() {
     setLocal(EMPTY_FILTERS);
     onChange(EMPTY_FILTERS);
+    setActiveFolder(null);
     onClose();
   }
 
