@@ -19,7 +19,7 @@ from prometheus_fastapi_instrumentator import Instrumentator
 app = FastAPI(title=settings.app_name, debug=settings.debug, redoc_url="/redoc")
 @app.get("/api/v1/health")
 def health_check_test():
-    return {"status": "ok"}
+    return {"status": "ok", "version": "2026-06-04-test"}
 
 app.add_middleware(
     CORSMiddleware,
