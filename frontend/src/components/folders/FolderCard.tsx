@@ -77,7 +77,7 @@ export default function FolderCard({ name, isDragOver, onClick, onRename, onMove
     >
       {/* Иконка папки */}
       <div className="w-16 h-16 flex items-center justify-center">
-        <svg className="w-14 h-14 text-sky-400 group-hover:text-sky-500 transition-colors"
+        <svg className="w-14 h-14 text-emerald-400 group-hover:text-emerald-500 transition-colors"
           viewBox="0 0 24 24" fill="currentColor">
           <path d="M19.5 21a3 3 0 003-3v-4.5a3 3 0 00-3-3h-15a3 3 0 00-3 3V18a3 3 0 003 3h15z" />
           <path d="M3.75 9.75A.75.75 0 013 9V6a3 3 0 013-3h2.25a3 3 0 012.4 1.2l.6.8h5.55a3 3 0 013 3v.75a.75.75 0 01-.75.75H3.75z"
