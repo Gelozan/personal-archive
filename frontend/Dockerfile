@@ -12,6 +12,7 @@ RUN pnpm install --frozen-lockfile
 
 # Копируем весь исходный код и собираем
 COPY . .
+COPY .env.production .env.production
 RUN pnpm build
 
 # ── Стадия 2: раздача статики ─────────────────────────────────────
